@@ -1,0 +1,33 @@
+(deftype File [name String, mode String, file (Ptr FILE)])
+
+(defmodule File
+  (def default-mode "w+")
+
+  (defn open-with [name mode]
+    (init @name @mode (IO.fopen name mode)))
+
+  (defn open [name]
+    (open-with name default-mode))
+
+  (defn close [f]
+    (IO.fclose @(file f)))
+
+  (defn remove [f]
+    (IO.unlink @(name f)))
+
+  (defn write [f string]
+    (let-do [ln (length string)]
+      (IO.fwrite (cstr string) 1 ln @(file f))))
+
+  (defn read [f len]
+    (let-do [s (String.allocate len (Char.from-int 0))]
+      (ignore (IO.fread (cstr &s) 1 len @(file f)))
+      s))
+
+  (defn read-all [f]
+    (let-do [fd @(file f)]
+      (IO.fseek fd 0 IO.SEEK-END)
+      (let-do [len (IO.ftell fd)]
+        (IO.fseek fd 0 IO.SEEK-SET)
+        (read f len))))
+)

@@ -1,0 +1,19 @@
+(load "file.carp")
+(load "Test.carp")
+
+(use-all File Test)
+
+(defn main []
+  (with-test test
+    (assert-equal test
+                  "hi"
+                  &(let-do [f (File.open "example")]
+                    (File.write &f "hi")
+                    (File.read-all &f))
+                  "reading and writing works"
+    )
+    (let-do [f (File.open "example")]
+      (File.remove &f)
+      @test)
+  )
+)
