@@ -12,6 +12,36 @@
                     (File.read-all &f))
                   "reading and writing works"
     )
+    (assert-true test
+                 (let [f (File.open "example")]
+                   (File.writable? &f))
+                  "writable? works I"
+    )
+    (assert-false test
+                  (let [f (File.open-with "example" "r")]
+                    (File.writable? &f))
+                   "writable? works II"
+    )
+    (assert-true test
+                 (let [f (File.open "example")]
+                   (File.readable? &f))
+                  "readable? works I"
+    )
+    (assert-false test
+                  (let [f (File.open-with "example" "w")]
+                    (File.readable? &f))
+                   "readable? works II"
+    )
+    (assert-true test
+                 (let [f (File.open-with "example" "rb")]
+                   (File.binary-mode? &f))
+                  "binary-mode? works I"
+    )
+    (assert-false test
+                  (let [f (File.open "example")]
+                    (File.binary-mode? &f))
+                   "binary-mode? works II"
+    )
     (let-do [f (File.open "example")]
       (File.remove &f)
       @test)

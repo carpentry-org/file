@@ -30,4 +30,15 @@
       (let-do [len (IO.ftell fd)]
         (IO.fseek fd 0 IO.SEEK-SET)
         (read f len))))
+
+  (defn readable? [f]
+    (or (> (String.index-of (mode f) \+) -1)
+        (> (String.index-of (mode f) \r) -1)))
+
+  (defn writable? [f]
+    (or (> (String.index-of (mode f) \w) -1)
+        (> (String.index-of (mode f) \a) -1)))
+
+  (defn binary-mode? [f]
+    (> (String.index-of (mode f) \b) -1))
 )
