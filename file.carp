@@ -10,7 +10,7 @@
     (open-with name default-mode))
 
   (defn close [f]
-    (IO.fclose @(file f)))
+    (IO.fclose @(file &f)))
 
   (defn remove [f]
     (IO.unlink @(name f)))
