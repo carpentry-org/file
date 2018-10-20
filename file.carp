@@ -31,6 +31,9 @@
         (IO.fseek fd 0 IO.SEEK-SET)
         (read f len))))
 
+  (defn rewind [f]
+    (IO.rewind @(file f)))
+
   (defn readable? [f]
     (or (> (String.index-of (mode f) \+) -1)
         (> (String.index-of (mode f) \r) -1)))
