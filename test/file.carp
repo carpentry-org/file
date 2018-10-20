@@ -7,9 +7,12 @@
   (with-test test
     (assert-equal test
                   "hi"
-                  &(let-do [f (File.open "example")]
+                  &(let-do [f (File.open "example")
+                            s @""]
                     (File.write &f "hi")
-                    (File.read-all &f))
+                    (set! s (File.read-all &f))
+                    (File.close f)
+                    s)
                   "reading and writing works"
     )
     (assert-true test
