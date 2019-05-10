@@ -44,6 +44,9 @@ You can `read` from the file—or `read-all`, if you don’t care about length�
 (IO.println &(read-all &f))
 ```
 
+All of these will check whether the files are actually readable and/or writable
+before performing any IO actions and return a `Result.Error` if they can’t.
+
 You can also ask about the modes of the file, using the functions `readable?`,
 `writable?`, or `binary-mode?`.
 
