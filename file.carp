@@ -1,32 +1,79 @@
 (deftype File [name String, mode String, file (Ptr FILE)])
 
 (defmodule File
+  (doc default-mode "is the default file mode, used by [`open`](#open).
+
+Initially set to `w+`.")
   (def default-mode "w+")
 
+  (doc readable? "checks whether a file is readable by examining its mode.")
+  (defn readable? [f]
+    (or (> (String.index-of (mode f) \+) -1)
+        (> (String.index-of (mode f) \r) -1)))
+
+  (doc writable? "checks whether a file is writable by examining its mode.")
+  (defn writable? [f]
+    (or (> (String.index-of (mode f) \w) -1)
+        (> (String.index-of (mode f) \a) -1)))
+
+  (doc writable? "checks whether a file is in binary mode by examining its mode.")
+  (defn binary-mode? [f]
+    (> (String.index-of (mode f) \b) -1))
+
+  (doc open-with "opens a file with custom file mode.
+
+Returns a result containing either a file, or an error if the file couldn’t be
+opened due to permission errors or if the user tried to read from a nonexistant
+file.")
   (defn open-with [name mode]
     (let [f (IO.fopen name mode)]
       (if (null? f)
         (Result.Error (fmt "File “{}” could not be opened!" name))
         (Result.Success (init @name @mode (IO.fopen name mode))))))
 
+  (doc open-with "opens a file with the default file mode (see also
+[`default-mode`](#default-mode)).
+
+Returns a result containing either a file, or an error if the file couldn’t be
+opened due to permission errors or if the user tried to read from a nonexistant
+file.")
   (defn open [name]
     (open-with name default-mode))
 
+  (doc close "closes a file and takes ownership.")
   (defn close [f]
     (IO.fclose @(file &f)))
 
+  (doc close "removes a file from the file system.")
   (defn remove [f]
     (IO.unlink @(name f)))
 
+  (doc write "writes a string `string` to a file.
+
+Returns a result containing nothing on success and an error if the file is not
+writable.")
   (defn write [f string]
-    (let-do [ln (length string)]
-      (IO.fwrite (cstr string) 1 ln @(file f))))
+    (if (writable? f)
+      (let-do [ln (length string)]
+        (IO.fwrite (cstr string) 1 ln @(file f))
+        (Result.Success 0))
+      (Result.Error (fmt "The file “{}” is not writable" (name f)))))
 
+  (doc write "reads a string of length `len` from a file.
+
+Returns a result containing the string on success and an error if the file is
+not readable.")
   (defn read [f len]
-    (let-do [s (String.allocate len (Char.from-int 0))]
-      (ignore (IO.fread (cstr &s) 1 len @(file f)))
-      s))
+    (if (readable? f)
+      (let-do [s (String.allocate len (Char.from-int 0))]
+        (ignore (IO.fread (cstr &s) 1 len @(file f)))
+        (Result.Success s))
+      (Result.Error (fmt "The file “{}” is not readable" (name f)))))
 
+  (doc write "reads the entire file content of a file.
+
+Returns a result containing the string on success and an error if the file is
+not readable.")
   (defn read-all [f]
     (let-do [fd @(file f)]
       (IO.fseek fd 0 IO.SEEK-END)
@@ -34,17 +81,7 @@
         (IO.fseek fd 0 IO.SEEK-SET)
         (read f len))))
 
+  (doc rewind "rewinds a file.")
   (defn rewind [f]
     (IO.rewind @(file f)))
-
-  (defn readable? [f]
-    (or (> (String.index-of (mode f) \+) -1)
-        (> (String.index-of (mode f) \r) -1)))
-
-  (defn writable? [f]
-    (or (> (String.index-of (mode f) \w) -1)
-        (> (String.index-of (mode f) \a) -1)))
-
-  (defn binary-mode? [f]
-    (> (String.index-of (mode f) \b) -1))
 )
