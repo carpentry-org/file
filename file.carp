@@ -16,7 +16,8 @@ Initially set to `w+`.")
     (or (> (String.index-of (mode f) \w) -1)
         (> (String.index-of (mode f) \a) -1)))
 
-  (doc writable? "checks whether a file is in binary mode by examining its mode.")
+  (doc binary-mode? "checks whether a file is in binary mode by examining its
+mode.")
   (defn binary-mode? [f]
     (> (String.index-of (mode f) \b) -1))
 
@@ -31,7 +32,7 @@ file.")
         (Result.Error (fmt "File “{}” could not be opened!" name))
         (Result.Success (init @name @mode (IO.fopen name mode))))))
 
-  (doc open-with "opens a file with the default file mode (see also
+  (doc open "opens a file with the default file mode (see also
 [`default-mode`](#default-mode)).
 
 Returns a result containing either a file, or an error if the file couldn’t be

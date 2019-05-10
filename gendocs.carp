@@ -1,0 +1,9 @@
+(load "file.carp")
+
+(Project.config "title" "gile")
+(Project.config "docs-directory" "./docs/")
+(Project.config "docs-logo" "")
+(Project.config "docs-url" "https://github.com/carpentry-org/file")
+(Project.config "docs-styling" "style.css")
+
+(save-docs File)

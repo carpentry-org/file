@@ -1,0 +1,585 @@
+<!DOCTYPE HTML>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="content">
+            <div class="logo">
+                <a href="http://github.com/carp-lang/Carp">
+                    <img src="logo.png">
+                </a>
+                <div class="title">
+                    gile
+                </div>
+                <div class="index">
+                    <ul>
+                        <li>
+                            <a href="File.html">
+                                File
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <h1>
+                File
+            </h1>
+            <div class="binder">
+                <a class="anchor" href="#binary-mode?">
+                    <h3 id="binary-mode?">
+                        binary-mode?
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [(Ref File)] Bool)
+                </p>
+                <pre class="args">
+                    (binary-mode? f)
+                </pre>
+                <p class="doc">
+                    <p>checks whether a file is in binary mode by examining its
+mode.</p>
+
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#close">
+                    <h3 id="close">
+                        close
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [File] ())
+                </p>
+                <pre class="args">
+                    (close f)
+                </pre>
+                <p class="doc">
+                    <p>removes a file from the file system.</p>
+
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#copy">
+                    <h3 id="copy">
+                        copy
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [(Ref File)] File)
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#default-mode">
+                    <h3 id="default-mode">
+                        default-mode
+                    </h3>
+                </a>
+                <div class="description">
+                    def
+                </div>
+                <p class="sig">
+                    &amp;String
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    <p>is the default file mode, used by <a href="#open"><code>open</code></a>.</p>
+<p>Initially set to <code>w+</code>.</p>
+
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#file">
+                    <h3 id="file">
+                        file
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [(Ref File)] (Ref (Ptr FILE)))
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#init">
+                    <h3 id="init">
+                        init
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [String, String, (Ptr FILE)] File)
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#mode">
+                    <h3 id="mode">
+                        mode
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [(Ref File)] &amp;String)
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#name">
+                    <h3 id="name">
+                        name
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [(Ref File)] &amp;String)
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#open">
+                    <h3 id="open">
+                        open
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [&amp;String] (Result File String))
+                </p>
+                <pre class="args">
+                    (open name)
+                </pre>
+                <p class="doc">
+                    <p>opens a file with the default file mode (see also
+<a href="#default-mode"><code>default-mode</code></a>).</p>
+<p>Returns a result containing either a file, or an error if the file couldn’t be
+opened due to permission errors or if the user tried to read from a nonexistant
+file.</p>
+
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#open-with">
+                    <h3 id="open-with">
+                        open-with
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [&amp;String, &amp;String] (Result File String))
+                </p>
+                <pre class="args">
+                    (open-with name mode)
+                </pre>
+                <p class="doc">
+                    <p>opens a file with custom file mode.</p>
+<p>Returns a result containing either a file, or an error if the file couldn’t be
+opened due to permission errors or if the user tried to read from a nonexistant
+file.</p>
+
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#prn">
+                    <h3 id="prn">
+                        prn
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [(Ref File)] String)
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#read">
+                    <h3 id="read">
+                        read
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [(Ref File), Int] (Result String String))
+                </p>
+                <pre class="args">
+                    (read f len)
+                </pre>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#read-all">
+                    <h3 id="read-all">
+                        read-all
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [(Ref File)] (Result String String))
+                </p>
+                <pre class="args">
+                    (read-all f)
+                </pre>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#readable?">
+                    <h3 id="readable?">
+                        readable?
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [(Ref File)] Bool)
+                </p>
+                <pre class="args">
+                    (readable? f)
+                </pre>
+                <p class="doc">
+                    <p>checks whether a file is readable by examining its mode.</p>
+
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#remove">
+                    <h3 id="remove">
+                        remove
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [(Ref File)] ())
+                </p>
+                <pre class="args">
+                    (remove f)
+                </pre>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#rewind">
+                    <h3 id="rewind">
+                        rewind
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [(Ref File)] ())
+                </p>
+                <pre class="args">
+                    (rewind f)
+                </pre>
+                <p class="doc">
+                    <p>rewinds a file.</p>
+
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#set-file">
+                    <h3 id="set-file">
+                        set-file
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [File, (Ptr FILE)] File)
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#set-file!">
+                    <h3 id="set-file!">
+                        set-file!
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [(Ref File), (Ptr FILE)] ())
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#set-mode">
+                    <h3 id="set-mode">
+                        set-mode
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [File, String] File)
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#set-mode!">
+                    <h3 id="set-mode!">
+                        set-mode!
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [(Ref File), String] ())
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#set-name">
+                    <h3 id="set-name">
+                        set-name
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [File, String] File)
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#set-name!">
+                    <h3 id="set-name!">
+                        set-name!
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [(Ref File), String] ())
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#str">
+                    <h3 id="str">
+                        str
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [(Ref File)] String)
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#update-file">
+                    <h3 id="update-file">
+                        update-file
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [File, (Ref (λ [(Ptr FILE)] (Ptr FILE)))] File)
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#update-mode">
+                    <h3 id="update-mode">
+                        update-mode
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [File, (Ref (λ [String] String))] File)
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#update-name">
+                    <h3 id="update-name">
+                        update-name
+                    </h3>
+                </a>
+                <div class="description">
+                    instantiate
+                </div>
+                <p class="sig">
+                    (λ [File, (Ref (λ [String] String))] File)
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#writable?">
+                    <h3 id="writable?">
+                        writable?
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [(Ref File)] Bool)
+                </p>
+                <pre class="args">
+                    (writable? f)
+                </pre>
+                <p class="doc">
+                    <p>checks whether a file is writable by examining its mode.</p>
+
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#write">
+                    <h3 id="write">
+                        write
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [(Ref File), &amp;String] (Result Int String))
+                </p>
+                <pre class="args">
+                    (write f string)
+                </pre>
+                <p class="doc">
+                    <p>reads the entire file content of a file.</p>
+<p>Returns a result containing the string on success and an error if the file is
+not readable.</p>
+
+                </p>
+            </div>
+        </div>
+    </body>
+</html>
