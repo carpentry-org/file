@@ -4,7 +4,10 @@
   (def default-mode "w+")
 
   (defn open-with [name mode]
-    (init @name @mode (IO.fopen name mode)))
+    (let [f (IO.fopen name mode)]
+      (if (null? f)
+        (Result.Error (fmt "File “{}” could not be opened!" name))
+        (Result.Success (init @name @mode (IO.fopen name mode))))))
 
   (defn open [name]
     (open-with name default-mode))
