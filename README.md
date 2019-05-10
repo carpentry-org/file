@@ -16,9 +16,12 @@ The main type involved in working with this library is `File`, naturally. All
 file operations depend on the file being opened.
 
 ```clojure
-(File.open "example.txt") ; => a File you can write to
-(File.open-with "example.txt" "a") ; => a File you append to
+(File.open "example.txt") ; => a Result containing a File you can write to
+(File.open-with "example.txt" "a") ; => a Result containing a File you append to
 ```
+
+If the file couldn’t be opened due to it not existing or file permission errors,
+a `Result.Error` with an error message is returned.
 
 The file permissions follow the [file modes](https://www.tutorialspoint.com/c_standard_library/c_function_fopen.htm)
 in UNIX. The default is `"w+"`, or writing/reading. Generally, files have a
