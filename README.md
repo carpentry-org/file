@@ -24,7 +24,7 @@ If the file couldn’t be opened due to it not existing or file permission error
 a `Result.Error` with an error message is returned.
 
 The file permissions follow the [file modes](https://www.tutorialspoint.com/c_standard_library/c_function_fopen.htm)
-in UNIX. The default is `"w+"`, or writing/reading. Generally, files have a
+in UNIX. The default is `"a+"`, or writing/reading. Generally, files have a
 `name`, `mode`, and `file` property; you can read safely from them, but writing
 to them directly is discouraged.
 

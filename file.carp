@@ -3,8 +3,8 @@
 (defmodule File
   (doc default-mode "is the default file mode, used by [`open`](#open).
 
-Initially set to `w+`.")
-  (def default-mode "w+")
+Initially set to `a+`.")
+  (def default-mode "a+")
 
   (doc readable? "checks whether a file is readable by examining its mode.")
   (defn readable? [f]
