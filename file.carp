@@ -1,6 +1,54 @@
+(relative-include "file_helper.h")
+
 (deftype File [name String, mode String, file (Ptr FILE)])
+(deftype WalkOptions [
+  recursive? Bool,
+  follow-links? Bool,
+  dotfiles? Bool,
+  match-dirs? Bool,
+])
+
+(defmodule WalkOptions
+  (register RECURSIVE Int "WS_RECURSIVE")
+  (register FOLLOWLINK Int "WS_FOLLOWLINK")
+  (register DOTFILES Int "WS_DOTFILES")
+  (register MATCHDIRS Int "WS_MATCHDIRS")
+
+  (defn to-int [o]
+    (Int.bit-or (if @(recursive? o) RECURSIVE 0)
+      (Int.bit-or (if @(follow-links? o) FOLLOWLINK 0)
+        (Int.bit-or (if @(dotfiles? o) DOTFILES 0)
+                    (if @(match-dirs? o) MATCHDIRS 0)))))
+)
 
 (defmodule File
+  (hidden OK)
+  (register OK Int "WALK_OK")
+  (hidden NAME-TOO-LONG)
+  (register NAME-TOO-LONG Int "WALK_NAMETOOLONG")
+  (hidden CANT-OPEN)
+  (register CANT-OPEN Int "WALK_CANTOPEN")
+  (hidden CANT-STAT)
+  (register CANT-STAT Int "WALK_CANTSTAT")
+  (register walk-internal (Fn [&String (Fn [&String] ()) Int] Int) "walk_dir")
+
+  (doc default-walk "is the default options used by [`walk`](#walk).
+
+Initially set to recursive, not following links, and not matching directories or
+dotfiles.")
+  (def default-walk (WalkOptions.init true false false false))
+
+  (defn walk-with [s callback options]
+    (case (walk-internal s @callback (WalkOptions.to-int options))
+      OK (Result.Success 0)
+      NAME-TOO-LONG (Result.Error (fmt "Filename '%s' too long" s))
+      CANT-OPEN (Result.Error (fmt "Can’t open '%s'" s))
+      CANT-STAT (Result.Error (fmt "Can’t stat '%s'" s))
+      (Result.Error @"Unknown file error")))
+
+  (defn walk [s callback]
+    (walk-with s callback &default-walk))
+
   (doc default-mode "is the default file mode, used by [`open`](#open).
 
 Initially set to `a+`.")

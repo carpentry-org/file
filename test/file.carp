@@ -3,6 +3,8 @@
 
 (use-all File Test Result)
 
+(def test-acc 0)
+
 (defn main []
   (with-test test
     (assert-equal test
@@ -49,6 +51,29 @@
                  (let [f (File.open-with "doesntexist" "r")]
                    (error? &f))
                  "opening non-existant file returns Result.Error"
+    )
+    (assert-equal test
+                  &(Result.Error @"Can’t open 'doesntexist'")
+                  &(File.walk "doesntexist" &(fn [s] ()))
+                  "opening non-existant directory returns Result.Error"
+    )
+    (assert-equal test
+                  2
+                  (do
+                    (ignore (File.walk "test" &(fn [_] (set! test-acc (+ test-acc 1)))))
+                    test-acc)
+                  "walk works on directory"
+    )
+    (do (set! test-acc 0) @test)
+    (assert-equal test
+                  3
+                  (do
+                    (ignore (File.walk-with
+                              "test"
+                              &(fn [_] (set! test-acc (+ test-acc 1)))
+                              &(WalkOptions.init true false false true)))
+                    test-acc)
+                  "walk-with works on directory"
     )
     (let-do [f (unsafe-from-success (File.open "example"))]
       (File.remove &f)
