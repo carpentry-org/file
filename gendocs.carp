@@ -7,3 +7,4 @@
 (Project.config "docs-styling" "style.css")
 
 (save-docs File)
+(quit)

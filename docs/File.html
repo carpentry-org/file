@@ -65,7 +65,7 @@ mode.</p>
                     (close f)
                 </pre>
                 <p class="doc">
-                    <p>removes a file from the file system.</p>
+                    <p>closes a file and takes ownership.</p>
 
                 </p>
             </div>
@@ -105,7 +105,29 @@ mode.</p>
                 </span>
                 <p class="doc">
                     <p>is the default file mode, used by <a href="#open"><code>open</code></a>.</p>
-<p>Initially set to <code>w+</code>.</p>
+<p>Initially set to <code>a+</code>.</p>
+
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#default-walk">
+                    <h3 id="default-walk">
+                        default-walk
+                    </h3>
+                </a>
+                <div class="description">
+                    def
+                </div>
+                <p class="sig">
+                    WalkOptions
+                </p>
+                <span>
+                    
+                </span>
+                <p class="doc">
+                    <p>is the default options used by <a href="#walk"><code>walk</code></a>.</p>
+<p>Initially set to recursive, not following links, and not matching directories or
+dotfiles.</p>
 
                 </p>
             </div>
@@ -325,7 +347,8 @@ file.</p>
                     (remove f)
                 </pre>
                 <p class="doc">
-                    
+                    <p>removes a file from the file system.</p>
+
                 </p>
             </div>
             <div class="binder">
@@ -536,6 +559,73 @@ file.</p>
                 </span>
                 <p class="doc">
                     
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#walk">
+                    <h3 id="walk">
+                        walk
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [&amp;String, (Ref (λ [&amp;String] ()))] (Result Int String))
+                </p>
+                <pre class="args">
+                    (walk s callback)
+                </pre>
+                <p class="doc">
+                    <p>walks a directory with the default walk mode (see also
+<a href="#default-walk"><code>default-walk</code></a>).</p>
+<p>Returns a result containing either nothing, or an error if the directory
+couldn’t be opened due to permission errors or if the user tried to open a
+nonexistant directory.</p>
+
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#walk-mode">
+                    <h3 id="walk-mode">
+                        walk-mode
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [Bool, Bool, Bool, Bool] WalkOptions)
+                </p>
+                <pre class="args">
+                    (walk-mode recursive? follow-links? dotfiles? match-dirs?)
+                </pre>
+                <p class="doc">
+                    <p>constructs a mode for <a href="#walk-with"><code>walk-with</code></a>.</p>
+
+                </p>
+            </div>
+            <div class="binder">
+                <a class="anchor" href="#walk-with">
+                    <h3 id="walk-with">
+                        walk-with
+                    </h3>
+                </a>
+                <div class="description">
+                    defn
+                </div>
+                <p class="sig">
+                    (λ [&amp;String, (Ref (λ [&amp;String] ())), (Ref WalkOptions)] (Result Int String))
+                </p>
+                <pre class="args">
+                    (walk-with s callback options)
+                </pre>
+                <p class="doc">
+                    <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
+<p>Returns a result containing either nothing, or an error if the directory
+couldn’t be opened due to permission errors or if the user tried to open a
+nonexistant directory.</p>
+
                 </p>
             </div>
             <div class="binder">

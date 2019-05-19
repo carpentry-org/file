@@ -30,6 +30,7 @@
   (register CANT-OPEN Int "WALK_CANTOPEN")
   (hidden CANT-STAT)
   (register CANT-STAT Int "WALK_CANTSTAT")
+  (hidden walk-internal)
   (register walk-internal (Fn [&String (Fn [&String] ()) Int] Int) "walk_dir")
 
   (doc default-walk "is the default options used by [`walk`](#walk).
@@ -38,7 +39,11 @@ Initially set to recursive, not following links, and not matching directories or
 dotfiles.")
   (def default-walk (WalkOptions.init true false false false))
 
-  (doc walk "walks a directory with a custom walk mode.
+  (doc walk-mode "constructs a mode for [`walk-with`](#walk-with).")
+  (defn walk-mode [recursive? follow-links? dotfiles? match-dirs?]
+    (WalkOptions.init recursive? follow-links? dotfiles? match-dirs?))
+
+  (doc walk-with "walks a directory with a custom [walk mode](#walk-mode).
 
 Returns a result containing either nothing, or an error if the directory
 couldn’t be opened due to permission errors or if the user tried to open a
@@ -104,7 +109,7 @@ file.")
   (defn close [f]
     (IO.fclose @(file &f)))
 
-  (doc close "removes a file from the file system.")
+  (doc remove "removes a file from the file system.")
   (defn remove [f]
     (IO.unlink @(name f)))
 
