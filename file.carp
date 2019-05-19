@@ -38,6 +38,11 @@ Initially set to recursive, not following links, and not matching directories or
 dotfiles.")
   (def default-walk (WalkOptions.init true false false false))
 
+  (doc walk "walks a directory with a custom walk mode.
+
+Returns a result containing either nothing, or an error if the directory
+couldn’t be opened due to permission errors or if the user tried to open a
+nonexistant directory.")
   (defn walk-with [s callback options]
     (case (walk-internal s @callback (WalkOptions.to-int options))
       OK (Result.Success 0)
@@ -46,6 +51,12 @@ dotfiles.")
       CANT-STAT (Result.Error (fmt "Can’t stat '%s'" s))
       (Result.Error @"Unknown file error")))
 
+  (doc walk "walks a directory with the default walk mode (see also
+[`default-walk`](#default-walk)).
+
+Returns a result containing either nothing, or an error if the directory
+couldn’t be opened due to permission errors or if the user tried to open a
+nonexistant directory.")
   (defn walk [s callback]
     (walk-with s callback &default-walk))
 
