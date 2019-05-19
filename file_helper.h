@@ -1,3 +1,8 @@
+/*
+  the following code is based on https://rosettacode.org/wiki/Walk_a_directory/Recursively#C,
+  modified by Nat Quayle Nelson (natquaylenelson@gmail.com) and Veit Heller
+  (veit@veitheller.de) to work nicely with Carp.
+*/
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
