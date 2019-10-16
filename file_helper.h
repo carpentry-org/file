@@ -11,7 +11,6 @@
 #include <string.h>
 #include <errno.h>
 #include <err.h>
-#include "core.h"
 
 enum {
   WALK_OK = 0,
