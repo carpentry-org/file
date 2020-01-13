@@ -87,11 +87,17 @@ You can also ask about the modes of the file, using the functions `readable?`,
   (hidden is-dir)
   (register is-dir (Fn [Int] Bool) "S_ISDIR")
 
-  (private init)
   (hidden init)
-
-  (private file)
   (hidden file)
+  (hidden set-mode)
+  (hidden set-file)
+  (hidden set-name)
+  (hidden set-mode!)
+  (hidden set-file!)
+  (hidden set-name!)
+  (hidden update-mode)
+  (hidden update-file)
+  (hidden update-name)
 
   ; the actual low-level implementation of File.walk
   (defn walk-recur [dname op spec]
@@ -251,7 +257,7 @@ writable.")
         (Result.Success 0))
       (Result.Error (fmt "The file “%s” is not writable" (name f)))))
 
-  (doc write "reads a string of length `len` from a file.
+  (doc read "reads a string of length `len` from a file.
 
 Returns a result containing the string on success and an error if the file is
 not readable.")
@@ -262,7 +268,7 @@ not readable.")
         (Result.Success s))
       (Result.Error (fmt "The file “%s” is not readable" (name f)))))
 
-  (doc write "reads the entire file content of a file.
+  (doc read-all "reads the entire file content of a file.
 
 Returns a result containing the string on success and an error if the file is
 not readable.")

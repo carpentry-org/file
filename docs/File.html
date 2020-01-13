@@ -386,7 +386,10 @@ file.</p>
                     (read f len)
                 </pre>
                 <p class="doc">
-                    
+                    <p>reads a string of length <code>len</code> from a file.</p>
+<p>Returns a result containing the string on success and an error if the file is
+not readable.</p>
+
                 </p>
             </div>
             <div class="binder">
@@ -405,7 +408,10 @@ file.</p>
                     (read-all f)
                 </pre>
                 <p class="doc">
-                    
+                    <p>reads the entire file content of a file.</p>
+<p>Returns a result containing the string on success and an error if the file is
+not readable.</p>
+
                 </p>
             </div>
             <div class="binder">
@@ -469,126 +475,6 @@ file.</p>
                 </p>
             </div>
             <div class="binder">
-                <a class="anchor" href="#set-file">
-                    <h3 id="set-file">
-                        set-file
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [File, (Ptr FILE)] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>sets the <code>file</code> property of a <code>File</code>.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#set-file!">
-                    <h3 id="set-file!">
-                        set-file!
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [(Ref File), (Ptr FILE)] ())
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>sets the <code>file</code> property of a <code>File</code> in place.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#set-mode">
-                    <h3 id="set-mode">
-                        set-mode
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [File, String] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>sets the <code>mode</code> property of a <code>File</code>.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#set-mode!">
-                    <h3 id="set-mode!">
-                        set-mode!
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [(Ref File), String] ())
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>sets the <code>mode</code> property of a <code>File</code> in place.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#set-name">
-                    <h3 id="set-name">
-                        set-name
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [File, String] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>sets the <code>name</code> property of a <code>File</code>.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#set-name!">
-                    <h3 id="set-name!">
-                        set-name!
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [(Ref File), String] ())
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>sets the <code>name</code> property of a <code>File</code> in place.</p>
-
-                </p>
-            </div>
-            <div class="binder">
                 <a class="anchor" href="#str">
                     <h3 id="str">
                         str
@@ -605,66 +491,6 @@ file.</p>
                 </span>
                 <p class="doc">
                     <p>converts a <code>File</code> to a string.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#update-file">
-                    <h3 id="update-file">
-                        update-file
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [File, (Ref (λ [(Ptr FILE)] (Ptr FILE)))] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>updates the <code>file</code> property of a <code>File</code> using a function <code>f</code>.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#update-mode">
-                    <h3 id="update-mode">
-                        update-mode
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [File, (Ref (λ [String] String))] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>updates the <code>mode</code> property of a <code>File</code> using a function <code>f</code>.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#update-name">
-                    <h3 id="update-name">
-                        update-name
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [File, (Ref (λ [String] String))] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>updates the <code>name</code> property of a <code>File</code> using a function <code>f</code>.</p>
 
                 </p>
             </div>
@@ -771,9 +597,9 @@ nonexistant directory.</p>
                     (write f string)
                 </pre>
                 <p class="doc">
-                    <p>reads the entire file content of a file.</p>
-<p>Returns a result containing the string on success and an error if the file is
-not readable.</p>
+                    <p>writes a string <code>string</code> to a file.</p>
+<p>Returns a result containing nothing on success and an error if the file is not
+writable.</p>
 
                 </p>
             </div>
