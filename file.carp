@@ -1,5 +1,12 @@
 (relative-include "file_helper.h")
 
+(defmodule Dir
+  (register open (Fn [(Ptr Char)] (Ptr DIR)) "opendir")
+  (register close (Fn [(Ptr DIR)] ()) "closedir")
+  (register read (Fn [(Ptr DIR)] (Ptr DirEntry)) "readdir")
+  (register d-name (Fn [(Ptr DirEntry)] (Ptr Char)) "Dir_d_name")
+)
+
 (deftype File [name String, mode String, file (Ptr FILE)])
 (deftype WalkOptions [
   recursive? Bool,
@@ -8,18 +15,12 @@
   match-dirs? Bool,
 ])
 
-(defmodule WalkOptions
-  (register RECURSIVE Int "WS_RECURSIVE")
-  (register FOLLOWLINK Int "WS_FOLLOWLINK")
-  (register DOTFILES Int "WS_DOTFILES")
-  (register MATCHDIRS Int "WS_MATCHDIRS")
-
-  (defn to-int [o]
-    (Int.bit-or (if @(recursive? o) RECURSIVE 0)
-      (Int.bit-or (if @(follow-links? o) FOLLOWLINK 0)
-        (Int.bit-or (if @(dotfiles? o) DOTFILES 0)
-                    (if @(match-dirs? o) MATCHDIRS 0)))))
-)
+(defmacro until-expr [bs expr body]
+  (list 'while true
+    (list 'let bs
+      (list 'if expr
+        '(break)
+        (list 'do body)))))
 
 (doc File "A simple file abstraction for Carp.
 
@@ -75,21 +76,49 @@ You can also ask about the modes of the file, using the functions `readable?`,
 `writable?`, or `binary-mode?`.")
 
 (defmodule File
-  (hidden OK)
-  (register OK Int "WALK_OK")
-  (hidden NAME-TOO-LONG)
-  (register NAME-TOO-LONG Int "WALK_NAMETOOLONG")
-  (hidden CANT-OPEN)
-  (register CANT-OPEN Int "WALK_CANTOPEN")
-  (hidden CANT-STAT)
-  (register CANT-STAT Int "WALK_CANTSTAT")
-  (hidden walk-internal)
-  (register walk-internal (Fn [&String (Fn [String] ()) Int] Int) "walk_dir")
+  (register stat (Fn [(Ref String)] Int) "File_stat")
+
+  (register is-link (Fn [Int] Bool) "S_ISLNK")
+  (register is-dir (Fn [Int] Bool) "S_ISDIR")
+
+  ; the actual low-level implementation of File.walk
+  (defn walk-recur [dname op spec]
+    (let [dir (Dir.open (cstr dname))
+          res (Result.Success 0)]
+      (if (null? dir)
+        (Result.Error (fmt "Can’t open '%s'" dname))
+        (do
+          (until-expr
+            [dent (Dir.read dir)]
+            (null? dent)
+            (let [name &(from-cstr (Dir.d-name dent))]
+              (cond
+                (and (not @(WalkOptions.dotfiles? spec)) (starts-with? name ".")) ()
+                (or (= name ".") (= name "..")) ()
+                (let-do [f (fmt "%s/%s" dname name)
+                         lres (stat &f)]
+                  (cond
+                    (= -1 lres)
+                      (do
+                        (set! res (Result.Error (fmt "Can’t stat '%s'" &f)))
+                        (break))
+                    (and (is-link lres) (not @(WalkOptions.follow-links? spec))) ()
+                    (is-dir lres)
+                      (do
+                        (when @(WalkOptions.recursive? spec)
+                          (walk-recur &f op spec))
+                        (when @(WalkOptions.match-dirs? spec)
+                          (~op &f)))
+                    (~op &f))))))
+          (Dir.close dir)
+          res))))
+  (hidden walk-recur)
+  (private walk-recur)
 
   (doc default-walk "is the default options used by [`walk`](#walk).
 
-Initially set to recursive, not following links, and not matching directories or
-dotfiles.")
+Initially set to recursive, not following links, and not matching directories
+or dotfiles.")
   (def default-walk (WalkOptions.init true false false false))
 
   (doc walk-mode "constructs a mode for [`walk-with`](#walk-with).")
@@ -105,12 +134,7 @@ nonexistant directory.
 It will currently fail when being passed a lambda which accesses any closure
 variables due to a limitation of the Carp compiler.")
   (defn walk-with [s callback options]
-    (case (walk-internal s @callback (WalkOptions.to-int options))
-      OK (Result.Success 0)
-      NAME-TOO-LONG (Result.Error (fmt "Filename '%s' too long" s))
-      CANT-OPEN (Result.Error (fmt "Can’t open '%s'" s))
-      CANT-STAT (Result.Error (fmt "Can’t stat '%s'" s))
-      (Result.Error @"Unknown file error")))
+    (walk-recur s callback options))
 
   (doc walk "walks a directory with the default walk mode (see also
 [`default-walk`](#default-walk)).
@@ -140,8 +164,8 @@ variables due to a limitation of the Carp compiler.")
     (do
       (set! contents-res [])
       (Result.map
-        (walk-with s &(fn [f] (Array.push-back! &contents-res f)) options)
-        (fn [_] @&contents-res))))
+        (walk-with s &(fn [f] (Array.push-back! &contents-res @f)) options)
+        &(fn [_] @&contents-res))))
 
   (doc contents "walks a directory with the default walk mode (see also
 [`default-walk`](#default-walk)).
