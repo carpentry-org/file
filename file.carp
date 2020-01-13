@@ -76,10 +76,22 @@ You can also ask about the modes of the file, using the functions `readable?`,
 `writable?`, or `binary-mode?`.")
 
 (defmodule File
+  (private stat)
+  (hidden stat)
   (register stat (Fn [(Ref String)] Int) "File_stat")
 
+  (private is-link)
+  (hidden is-link)
   (register is-link (Fn [Int] Bool) "S_ISLNK")
+  (private is-dir)
+  (hidden is-dir)
   (register is-dir (Fn [Int] Bool) "S_ISDIR")
+
+  (private init)
+  (hidden init)
+
+  (private file)
+  (hidden file)
 
   ; the actual low-level implementation of File.walk
   (defn walk-recur [dname op spec]
@@ -129,10 +141,7 @@ or dotfiles.")
 
 Returns a result containing either nothing, or an error if the directory
 couldn’t be opened due to permission errors or if the user tried to open a
-nonexistant directory.
-
-It will currently fail when being passed a lambda which accesses any closure
-variables due to a limitation of the Carp compiler.")
+nonexistant directory.")
   (defn walk-with [s callback options]
     (walk-recur s callback options))
 
@@ -141,41 +150,45 @@ variables due to a limitation of the Carp compiler.")
 
 Returns a result containing either nothing, or an error if the directory
 couldn’t be opened due to permission errors or if the user tried to open a
-nonexistant directory.
-
-It will currently fail when being passed a lambda which accesses any closure
-variables due to a limitation of the Carp compiler.")
+nonexistant directory.")
   (defn walk [s callback]
     (walk-with s callback &default-walk))
 
-  (hidden contents-res)
-  (private contents-res)
-  (def contents-res (the (Array String) []))
+  (doc map-with "walks a directory with a custom [walk mode](#walk-mode).
+
+Returns a result containing either the results of the walker function as an
+array or an error if the directory couldn’t be opened due to permission errors
+or if the user tried to open a nonexistant directory.")
+  (defn map-with [s callback options]
+    (let [res []
+          res-ref &res]
+      (Result.map
+        (walk-with s &(fn [e] (Array.push-back! res-ref (~callback e))) options)
+        &(fn [_] @res-ref))))
+
+  (doc map "walks a directory with the default walk mode (see also
+[`default-walk`](#default-walk)).
+
+Returns a result containing either the results of the walker function as an
+array or an error if the directory couldn’t be opened due to permission errors
+or if the user tried to open a nonexistant directory.")
+  (defn map [s callback]
+    (map-with s callback &default-walk))
 
   (doc contents-with "walks a directory with a custom [walk mode](#walk-mode).
 
 Returns a result containing either the directory contents or an error if the
 directory couldn’t be opened due to permission errors or if the user tried to
-open a nonexistant directory.
-
-It will currently fail when being passed a lambda which accesses any closure
-variables due to a limitation of the Carp compiler.")
+open a nonexistant directory.")
   (defn contents-with [s options]
-    (do
-      (set! contents-res [])
-      (Result.map
-        (walk-with s &(fn [f] (Array.push-back! &contents-res @f)) options)
-        &(fn [_] @&contents-res))))
+    (map-with s &copy options))
 
   (doc contents "walks a directory with the default walk mode (see also
 [`default-walk`](#default-walk)).
 
 Returns a result containing either the contents of that directory or an error
 if the directory couldn’t be opened due to permission errors or if the user
-tried to open a nonexistant directory.
-
-It will currently fail when being passed a lambda which accesses any closure
-variables due to a limitation of the Carp compiler.")
+tried to open a nonexistant directory.")
   (defn contents [s]
     (contents-with s &default-walk))
 
