@@ -31,7 +31,7 @@
   (hidden CANT-STAT)
   (register CANT-STAT Int "WALK_CANTSTAT")
   (hidden walk-internal)
-  (register walk-internal (Fn [&String (Fn [&String] ()) Int] Int) "walk_dir")
+  (register walk-internal (Fn [&String (Fn [String] ()) Int] Int) "walk_dir")
 
   (doc default-walk "is the default options used by [`walk`](#walk).
 
@@ -47,7 +47,10 @@ dotfiles.")
 
 Returns a result containing either nothing, or an error if the directory
 couldn’t be opened due to permission errors or if the user tried to open a
-nonexistant directory.")
+nonexistant directory.
+
+It will currently fail when being passed a lambda which accesses any closure
+variables due to a limitation of the Carp compiler.")
   (defn walk-with [s callback options]
     (case (walk-internal s @callback (WalkOptions.to-int options))
       OK (Result.Success 0)
@@ -61,9 +64,43 @@ nonexistant directory.")
 
 Returns a result containing either nothing, or an error if the directory
 couldn’t be opened due to permission errors or if the user tried to open a
-nonexistant directory.")
+nonexistant directory.
+
+It will currently fail when being passed a lambda which accesses any closure
+variables due to a limitation of the Carp compiler.")
   (defn walk [s callback]
     (walk-with s callback &default-walk))
+
+  (hidden contents-res)
+  (private contents-res)
+  (def contents-res (the (Array String) []))
+
+  (doc contents-with "walks a directory with a custom [walk mode](#walk-mode).
+
+Returns a result containing either the directory contents or an error if the
+directory couldn’t be opened due to permission errors or if the user tried to
+open a nonexistant directory.
+
+It will currently fail when being passed a lambda which accesses any closure
+variables due to a limitation of the Carp compiler.")
+  (defn contents-with [s options]
+    (do
+      (set! contents-res [])
+      (Result.map
+        (walk-with s &(fn [f] (Array.push-back! &contents-res f)) options)
+        (fn [_] @&contents-res))))
+
+  (doc contents "walks a directory with the default walk mode (see also
+[`default-walk`](#default-walk)).
+
+Returns a result containing either the contents of that directory or an error
+if the directory couldn’t be opened due to permission errors or if the user
+tried to open a nonexistant directory.
+
+It will currently fail when being passed a lambda which accesses any closure
+variables due to a limitation of the Carp compiler.")
+  (defn contents [s]
+    (contents-with s &default-walk))
 
   (doc default-mode "is the default file mode, used by [`open`](#open).
 

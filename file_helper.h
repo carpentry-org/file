@@ -26,7 +26,7 @@ enum {
 #define WS_DOTFILES  (1 << 2)  /* per unix convention, .file is hidden */
 #define WS_MATCHDIRS  (1 << 3)  /* if pattern is used on dir names too */
 
-int walk_recur(String dname, void (*operation)(String*), int spec) {
+int walk_recur(String dname, void (*operation)(String), int spec) {
   struct dirent *dent;
   DIR *dir;
   struct stat st;
@@ -65,13 +65,15 @@ int walk_recur(String dname, void (*operation)(String*), int spec) {
       if (!(spec & WS_MATCHDIRS)) continue;
     }
 
-    (*operation)(((char**)&fn));
+    char* for_carp = malloc(FILENAME_MAX);
+    strcpy(for_carp, fn);
+    (*operation)(for_carp);
   }
  
   if (dir) closedir(dir);
   return res ? res : errno ? WALK_BADIO : WALK_OK;
 }
 
-int walk_dir(String* dname, void (*operation)(String*), int spec) {
+int walk_dir(String* dname, void (*operation)(String), int spec) {
   return walk_recur(*dname, operation, spec);
 }

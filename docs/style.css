@@ -1,32 +1,14 @@
 html {
     font-family: "Helvetica", sans-serif;
-    font-size: 1.0em;
-}
-
-p {
-    margin: 0em 0em 0.5em 0em;
+    font-size: 16px;
 }
 
 a {
     color: #000;
 }
 
-pre {
-    background: #eee;
-    padding: 10px;
-}
-
 .logo {
     display: none;
-}
-
-.args {
-  background-color: #eee;
-  padding: 3px;
-  display: inline-block;
-  margin-top: 0.3em;
-  margin-bottom: 0.3em;
-  white-space: normal;
 }
 
 ul {
@@ -35,31 +17,25 @@ ul {
     line-height: 1.4em;
 }
 
-.title {
-    font-size: 1.5em;
+.module-description {
+    margin-bottom: 3em;
 }
 
 .content {
     margin: 3em auto auto auto;
-    width: 70%;
-    max-width: 600px;
+    width: 80%;
+    max-width: 610px;
+    min-width: 400px
 }
 
 h1 {
-    margin-bottom: 1.5em;
+    margin-bottom: 1em;
+    font-weight: 400;
 }
 
 h3 {
     margin: 0em;
-}
-
-.anchor {
-    color: #000;
-    text-decoration: none;
-}
-
-.anchor:hover {
-    text-decoration: underline;
+    font-weight: 400;
 }
 
 .binder {
@@ -67,18 +43,35 @@ h3 {
 }
 
 .sig {
-    font-family: "Hasklig", "Source Code Pro", "Lucida Console", monospace;
+    font-family: "Hasklig", "Lucida Console", monospace;
+    margin: 0.5em 0em 0.5em 0em;
+}
+
+.args {
+    background-color: #eee;
+    display: inline-block;
+    white-space: normal;
+    margin: 0;
+    margin-bottom: 1em;
 }
 
 code {
-    font-family: "Hasklig", "Source Code Pro", "Lucida Console", monospace;
+    background-color: #eee;
+}
+
+pre {
+    background-color:  #eee;
 }
 
 .description {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+    margin-top: 0.3em;
     font-size: 0.8em;
     color: #aaa;
+}
+
+.huge {
+    font-size: 15em;
+    margin: 0em;
 }
 
 /* Smaller screens */
@@ -108,3 +101,4 @@ code {
         padding: 0px;
     }
 }
+.title, .index { display: none; }
