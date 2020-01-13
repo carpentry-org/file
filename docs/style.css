@@ -33,6 +33,11 @@ h1 {
     font-weight: 400;
 }
 
+h2 {
+    font-weight: 400;
+    margin-bottom: 0em;
+}
+
 h3 {
     margin: 0em;
     font-weight: 400;
@@ -61,6 +66,7 @@ code {
 
 pre {
     background-color:  #eee;
+    overflow-y: scroll;
 }
 
 .description {

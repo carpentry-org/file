@@ -29,7 +29,41 @@
                 File
             </h1>
             <div class="module-description">
-                
+                <p>A simple file abstraction for Carp.</p>
+<h2>Installation</h2>
+<p>You can obtain this library like so:</p>
+<pre><code>(load &quot;git@github.com:carpentry-org/file@0.0.6&quot;)
+</code></pre>
+<h2>Usage</h2>
+<p>The main type involved in working with this library is <code>File</code>, naturally. All
+file operations depend on the file being opened.</p>
+<pre><code>; returns a Result containing a File you can write to
+(File.open &quot;example.txt&quot;)
+
+; returns a Result containing a File you append to
+(File.open-with &quot;example.txt&quot; &quot;a&quot;)
+</code></pre>
+<p>If the file couldn’t be opened due to it not existing or file permission errors,
+a <code>Result.Error</code> with an error message is returned.</p>
+<p>The file permissions follow the <a href="https://www.tutorialspoint.com/c_standard_library/c_function_fopen.htm">file modes</a>
+in UNIX. The default is <code>&quot;a+&quot;</code>, or writing/reading. Generally, files have a
+<code>name</code>, <code>mode</code>, and <code>file</code> property; you can read safely from them, but writing
+to them directly is discouraged.</p>
+<p>Before you end your operations on the file, it is good practice to close the
+file again. In Carp, we do this using <code>close</code>.</p>
+<pre><code>(close f)
+</code></pre>
+<p>You can <code>read</code> from the file—or <code>read-all</code>, if you don’t care about length—,
+<code>write</code> to it, <code>remove</code> it, or <code>rewind</code> the file buffer.</p>
+<pre><code>(write &amp;f &quot;hi&quot;)
+(rewind &amp;f)
+(IO.println &amp;(read-all &amp;f))
+</code></pre>
+<p>All of these will check whether the files are actually readable and/or writable
+before performing any IO actions and return a <code>Result.Error</code> if they can’t.</p>
+<p>You can also ask about the modes of the file, using the functions <code>readable?</code>,
+<code>writable?</code>, or <code>binary-mode?</code>.</p>
+
             </div>
             <div class="binder">
                 <a class="anchor" href="#binary-mode?">
