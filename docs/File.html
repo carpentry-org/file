@@ -127,8 +127,6 @@ mode.</p>
 <p>Returns a result containing either the contents of that directory or an error
 if the directory couldn’t be opened due to permission errors or if the user
 tried to open a nonexistant directory.</p>
-<p>It will currently fail when being passed a lambda which accesses any closure
-variables due to a limitation of the Carp compiler.</p>
 
                 </p>
             </div>
@@ -152,8 +150,6 @@ variables due to a limitation of the Carp compiler.</p>
 <p>Returns a result containing either the directory contents or an error if the
 directory couldn’t be opened due to permission errors or if the user tried to
 open a nonexistant directory.</p>
-<p>It will currently fail when being passed a lambda which accesses any closure
-variables due to a limitation of the Carp compiler.</p>
 
                 </p>
             </div>
@@ -215,48 +211,55 @@ variables due to a limitation of the Carp compiler.</p>
                 </span>
                 <p class="doc">
                     <p>is the default options used by <a href="#walk"><code>walk</code></a>.</p>
-<p>Initially set to recursive, not following links, and not matching directories or
-dotfiles.</p>
+<p>Initially set to recursive, not following links, and not matching directories
+or dotfiles.</p>
 
                 </p>
             </div>
             <div class="binder">
-                <a class="anchor" href="#file">
-                    <h3 id="file">
-                        file
+                <a class="anchor" href="#map">
+                    <h3 id="map">
+                        map
                     </h3>
                 </a>
                 <div class="description">
-                    instantiate
+                    defn
                 </div>
                 <p class="sig">
-                    (λ [(Ref File)] (Ref (Ptr FILE)))
+                    (λ [&amp;String, (Ref (λ [&amp;String] a))] (Result (Array a) String))
                 </p>
-                <span>
-                    
-                </span>
+                <pre class="args">
+                    (map s callback)
+                </pre>
                 <p class="doc">
-                    <p>gets the <code>file</code> property of a <code>File</code>.</p>
+                    <p>walks a directory with the default walk mode (see also
+<a href="#default-walk"><code>default-walk</code></a>).</p>
+<p>Returns a result containing either the results of the walker function as an
+array or an error if the directory couldn’t be opened due to permission errors
+or if the user tried to open a nonexistant directory.</p>
 
                 </p>
             </div>
             <div class="binder">
-                <a class="anchor" href="#init">
-                    <h3 id="init">
-                        init
+                <a class="anchor" href="#map-with">
+                    <h3 id="map-with">
+                        map-with
                     </h3>
                 </a>
                 <div class="description">
-                    instantiate
+                    defn
                 </div>
                 <p class="sig">
-                    (λ [String, String, (Ptr FILE)] File)
+                    (λ [&amp;String, (Ref (λ [&amp;String] a)), (Ref WalkOptions)] (Result (Array a) String))
                 </p>
-                <span>
-                    
-                </span>
+                <pre class="args">
+                    (map-with s callback options)
+                </pre>
                 <p class="doc">
-                    <p>creates a <code>File</code>.</p>
+                    <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
+<p>Returns a result containing either the results of the walker function as an
+array or an error if the directory couldn’t be opened due to permission errors
+or if the user tried to open a nonexistant directory.</p>
 
                 </p>
             </div>
@@ -383,7 +386,10 @@ file.</p>
                     (read f len)
                 </pre>
                 <p class="doc">
-                    
+                    <p>reads a string of length <code>len</code> from a file.</p>
+<p>Returns a result containing the string on success and an error if the file is
+not readable.</p>
+
                 </p>
             </div>
             <div class="binder">
@@ -402,7 +408,10 @@ file.</p>
                     (read-all f)
                 </pre>
                 <p class="doc">
-                    
+                    <p>reads the entire file content of a file.</p>
+<p>Returns a result containing the string on success and an error if the file is
+not readable.</p>
+
                 </p>
             </div>
             <div class="binder">
@@ -466,126 +475,6 @@ file.</p>
                 </p>
             </div>
             <div class="binder">
-                <a class="anchor" href="#set-file">
-                    <h3 id="set-file">
-                        set-file
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [File, (Ptr FILE)] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>sets the <code>file</code> property of a <code>File</code>.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#set-file!">
-                    <h3 id="set-file!">
-                        set-file!
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [(Ref File), (Ptr FILE)] ())
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>sets the <code>file</code> property of a <code>File</code> in place.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#set-mode">
-                    <h3 id="set-mode">
-                        set-mode
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [File, String] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>sets the <code>mode</code> property of a <code>File</code>.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#set-mode!">
-                    <h3 id="set-mode!">
-                        set-mode!
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [(Ref File), String] ())
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>sets the <code>mode</code> property of a <code>File</code> in place.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#set-name">
-                    <h3 id="set-name">
-                        set-name
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [File, String] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>sets the <code>name</code> property of a <code>File</code>.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#set-name!">
-                    <h3 id="set-name!">
-                        set-name!
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [(Ref File), String] ())
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>sets the <code>name</code> property of a <code>File</code> in place.</p>
-
-                </p>
-            </div>
-            <div class="binder">
                 <a class="anchor" href="#str">
                     <h3 id="str">
                         str
@@ -606,66 +495,6 @@ file.</p>
                 </p>
             </div>
             <div class="binder">
-                <a class="anchor" href="#update-file">
-                    <h3 id="update-file">
-                        update-file
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [File, (Ref (λ [(Ptr FILE)] (Ptr FILE)))] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>updates the <code>file</code> property of a <code>File</code> using a function <code>f</code>.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#update-mode">
-                    <h3 id="update-mode">
-                        update-mode
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [File, (Ref (λ [String] String))] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>updates the <code>mode</code> property of a <code>File</code> using a function <code>f</code>.</p>
-
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#update-name">
-                    <h3 id="update-name">
-                        update-name
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
-                </div>
-                <p class="sig">
-                    (λ [File, (Ref (λ [String] String))] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>updates the <code>name</code> property of a <code>File</code> using a function <code>f</code>.</p>
-
-                </p>
-            </div>
-            <div class="binder">
                 <a class="anchor" href="#walk">
                     <h3 id="walk">
                         walk
@@ -675,7 +504,7 @@ file.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [&amp;String, (Ref (λ [String] ()))] (Result Int String))
+                    (λ [&amp;String, (Ref (λ [&amp;String] ()))] (Result Int String))
                 </p>
                 <pre class="args">
                     (walk s callback)
@@ -686,8 +515,6 @@ file.</p>
 <p>Returns a result containing either nothing, or an error if the directory
 couldn’t be opened due to permission errors or if the user tried to open a
 nonexistant directory.</p>
-<p>It will currently fail when being passed a lambda which accesses any closure
-variables due to a limitation of the Carp compiler.</p>
 
                 </p>
             </div>
@@ -721,7 +548,7 @@ variables due to a limitation of the Carp compiler.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [&amp;String, (Ref (λ [String] ())), (Ref WalkOptions)] (Result Int String))
+                    (λ [&amp;String, (Ref (λ [&amp;String] ())), (Ref WalkOptions)] (Result Int String))
                 </p>
                 <pre class="args">
                     (walk-with s callback options)
@@ -731,8 +558,6 @@ variables due to a limitation of the Carp compiler.</p>
 <p>Returns a result containing either nothing, or an error if the directory
 couldn’t be opened due to permission errors or if the user tried to open a
 nonexistant directory.</p>
-<p>It will currently fail when being passed a lambda which accesses any closure
-variables due to a limitation of the Carp compiler.</p>
 
                 </p>
             </div>
@@ -772,9 +597,9 @@ variables due to a limitation of the Carp compiler.</p>
                     (write f string)
                 </pre>
                 <p class="doc">
-                    <p>reads the entire file content of a file.</p>
-<p>Returns a result containing the string on success and an error if the file is
-not readable.</p>
+                    <p>writes a string <code>string</code> to a file.</p>
+<p>Returns a result containing nothing on success and an error if the file is not
+writable.</p>
 
                 </p>
             </div>
