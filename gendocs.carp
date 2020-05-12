@@ -1,13 +1,9 @@
 (load "file.carp")
 
-(defndynamic gendocs []
-       (do
-         (Project.config "title" "file")
-         (Project.config "docs-directory" "./docs/")
-         (Project.config "docs-logo" "")
-         (Project.config "docs-styling" "style.css")
-         (Project.config "docs-generate-index" false)
-         (save-docs File)))
-
-(gendocs)
+(Project.config "title" "file")
+(Project.config "docs-directory" "./docs/")
+(Project.config "docs-logo" "")
+(Project.config "docs-styling" "style.css")
+(Project.config "docs-generate-index" false)
+(save-docs File)
 (quit)

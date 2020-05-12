@@ -1,10 +1,10 @@
 (relative-include "file_helper.h")
 
 (defmodule Dir
-  (register open (Fn [(Ptr Char)] (Ptr DIR)) "opendir")
+  (register open (Fn [(Ptr CChar)] (Ptr DIR)) "opendir")
   (register close (Fn [(Ptr DIR)] ()) "closedir")
   (register read (Fn [(Ptr DIR)] (Ptr DirEntry)) "readdir")
-  (register d-name (Fn [(Ptr DirEntry)] (Ptr Char)) "Dir_d_name")
+  (register d-name (Fn [(Ptr DirEntry)] (Ptr CChar)) "Dir_d_name")
 )
 
 (deftype File [name String, mode String, file (Ptr FILE)])
@@ -29,7 +29,7 @@
 You can obtain this library like so:
 
 ```
-(load \"git@github.com:carpentry-org/file@0.1.0\")
+(load \"git@github.com:carpentry-org/file@0.1.1\")
 ```
 
 ## Usage

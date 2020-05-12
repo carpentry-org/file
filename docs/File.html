@@ -32,7 +32,7 @@
                 <p>A simple file abstraction for Carp.</p>
 <h2>Installation</h2>
 <p>You can obtain this library like so:</p>
-<pre><code>(load &quot;git@github.com:carpentry-org/file@0.1.0&quot;)
+<pre><code>(load &quot;git@github.com:carpentry-org/file@0.1.1&quot;)
 </code></pre>
 <h2>Usage</h2>
 <p>The main type involved in working with this library is <code>File</code>, naturally. All
@@ -75,7 +75,7 @@ before performing any IO actions and return a <code>Result.Error</code> if they 
                     defn
                 </div>
                 <p class="sig">
-                    (λ [(Ref File)] Bool)
+                    (Fn [(Ref File a)] Bool)
                 </p>
                 <pre class="args">
                     (binary-mode? f)
@@ -96,7 +96,7 @@ mode.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [File] ())
+                    (Fn [File] ())
                 </p>
                 <pre class="args">
                     (close f)
@@ -116,7 +116,7 @@ mode.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [&amp;String] (Result (Array String) String))
+                    (Fn [(Ref String a)] (Result (Array String) String))
                 </p>
                 <pre class="args">
                     (contents s)
@@ -140,7 +140,7 @@ tried to open a nonexistant directory.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [&amp;String, (Ref WalkOptions)] (Result (Array String) String))
+                    (Fn [(Ref String a), (Ref WalkOptions b)] (Result (Array String) String))
                 </p>
                 <pre class="args">
                     (contents-with s options)
@@ -163,7 +163,7 @@ open a nonexistant directory.</p>
                     instantiate
                 </div>
                 <p class="sig">
-                    (λ [(Ref File)] File)
+                    (Fn [(Ref File a)] File)
                 </p>
                 <span>
                     
@@ -183,7 +183,7 @@ open a nonexistant directory.</p>
                     def
                 </div>
                 <p class="sig">
-                    &amp;String
+                    (Ref String a)
                 </p>
                 <span>
                     
@@ -226,7 +226,7 @@ or dotfiles.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [&amp;String, (Ref (λ [&amp;String] a))] (Result (Array a) String))
+                    (Fn [(Ref String a), (Ref (Fn [(Ref String b)] c d) e)] (Result (Array c) String))
                 </p>
                 <pre class="args">
                     (map s callback)
@@ -250,7 +250,7 @@ or if the user tried to open a nonexistant directory.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [&amp;String, (Ref (λ [&amp;String] a)), (Ref WalkOptions)] (Result (Array a) String))
+                    (Fn [(Ref String a), (Ref (Fn [(Ref String b)] c d) e), (Ref WalkOptions f)] (Result (Array c) String))
                 </p>
                 <pre class="args">
                     (map-with s callback options)
@@ -273,7 +273,7 @@ or if the user tried to open a nonexistant directory.</p>
                     instantiate
                 </div>
                 <p class="sig">
-                    (λ [(Ref File)] &amp;String)
+                    (Fn [(Ref File a)] (Ref String a))
                 </p>
                 <span>
                     
@@ -293,7 +293,7 @@ or if the user tried to open a nonexistant directory.</p>
                     instantiate
                 </div>
                 <p class="sig">
-                    (λ [(Ref File)] &amp;String)
+                    (Fn [(Ref File a)] (Ref String a))
                 </p>
                 <span>
                     
@@ -313,7 +313,7 @@ or if the user tried to open a nonexistant directory.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [&amp;String] (Result File String))
+                    (Fn [(Ref String a)] (Result File String))
                 </p>
                 <pre class="args">
                     (open name)
@@ -337,7 +337,7 @@ file.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [&amp;String, &amp;String] (Result File String))
+                    (Fn [(Ref String a), (Ref String b)] (Result File String))
                 </p>
                 <pre class="args">
                     (open-with name mode)
@@ -360,7 +360,7 @@ file.</p>
                     instantiate
                 </div>
                 <p class="sig">
-                    (λ [(Ref File)] String)
+                    (Fn [(Ref File a)] String)
                 </p>
                 <span>
                     
@@ -380,7 +380,7 @@ file.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [(Ref File), Int] (Result String String))
+                    (Fn [(Ref File a), Int] (Result String String))
                 </p>
                 <pre class="args">
                     (read f len)
@@ -402,7 +402,7 @@ not readable.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [(Ref File)] (Result String String))
+                    (Fn [(Ref File a)] (Result String String))
                 </p>
                 <pre class="args">
                     (read-all f)
@@ -424,7 +424,7 @@ not readable.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [(Ref File)] Bool)
+                    (Fn [(Ref File a)] Bool)
                 </p>
                 <pre class="args">
                     (readable? f)
@@ -444,7 +444,7 @@ not readable.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [(Ref File)] ())
+                    (Fn [(Ref File a)] ())
                 </p>
                 <pre class="args">
                     (remove f)
@@ -464,7 +464,7 @@ not readable.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [(Ref File)] ())
+                    (Fn [(Ref File a)] ())
                 </p>
                 <pre class="args">
                     (rewind f)
@@ -484,7 +484,7 @@ not readable.</p>
                     instantiate
                 </div>
                 <p class="sig">
-                    (λ [(Ref File)] String)
+                    (Fn [(Ref File a)] String)
                 </p>
                 <span>
                     
@@ -504,7 +504,7 @@ not readable.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [&amp;String, (Ref (λ [&amp;String] ()))] (Result Int String))
+                    (Fn [(Ref String a), (Ref (Fn [(Ref String b)] () c) d)] (Result Int String))
                 </p>
                 <pre class="args">
                     (walk s callback)
@@ -528,7 +528,7 @@ nonexistant directory.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [Bool, Bool, Bool, Bool] WalkOptions)
+                    (Fn [Bool, Bool, Bool, Bool] WalkOptions)
                 </p>
                 <pre class="args">
                     (walk-mode recursive? follow-links? dotfiles? match-dirs?)
@@ -548,7 +548,7 @@ nonexistant directory.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [&amp;String, (Ref (λ [&amp;String] ())), (Ref WalkOptions)] (Result Int String))
+                    (Fn [(Ref String a), (Ref (Fn [(Ref String b)] () c) d), (Ref WalkOptions e)] (Result Int String))
                 </p>
                 <pre class="args">
                     (walk-with s callback options)
@@ -571,7 +571,7 @@ nonexistant directory.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [(Ref File)] Bool)
+                    (Fn [(Ref File a)] Bool)
                 </p>
                 <pre class="args">
                     (writable? f)
@@ -591,7 +591,7 @@ nonexistant directory.</p>
                     defn
                 </div>
                 <p class="sig">
-                    (λ [(Ref File), &amp;String] (Result Int String))
+                    (Fn [(Ref File a), (Ref String b)] (Result Int String))
                 </p>
                 <pre class="args">
                     (write f string)
