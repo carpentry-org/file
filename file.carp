@@ -224,10 +224,10 @@ Returns a result containing either a file, or an error if the file couldn’t be
 opened due to permission errors or if the user tried to read from a nonexistant
 file.")
   (defn open-with [name mode]
-    (let [f (IO.fopen name mode)]
+    (let [f (IO.Raw.fopen name mode)]
       (if (null? f)
         (Result.Error (fmt "File “%s” could not be opened!" name))
-        (Result.Success (init @name @mode (IO.fopen name mode))))))
+        (Result.Success (init @name @mode (IO.Raw.fopen name mode))))))
 
   (doc open "opens a file with the default file mode (see also
 [`default-mode`](#default-mode)).
@@ -240,11 +240,11 @@ file.")
 
   (doc close "closes a file and takes ownership.")
   (defn close [f]
-    (IO.fclose @(file &f)))
+    (ignore (IO.Raw.fclose @(file &f))))
 
   (doc remove "removes a file from the file system.")
   (defn remove [f]
-    (IO.unlink @(name f)))
+    (ignore (IO.Raw.unlink (name f))))
 
   (doc write "writes a string `string` to a file.
 
@@ -253,7 +253,7 @@ writable.")
   (defn write [f string]
     (if (writable? f)
       (let-do [ln (length string)]
-        (IO.fwrite (cstr string) 1 ln @(file f))
+        (ignore (IO.Raw.fwrite string 1 ln @(file f)))
         (Result.Success 0))
       (Result.Error (fmt "The file “%s” is not writable" (name f)))))
 
@@ -264,7 +264,7 @@ not readable.")
   (defn read [f len]
     (if (readable? f)
       (let-do [s (String.allocate len (Char.from-int 0))]
-        (ignore (IO.fread (cstr &s) 1 len @(file f)))
+        (ignore (IO.Raw.fread &s 1 len @(file f)))
         (Result.Success s))
       (Result.Error (fmt "The file “%s” is not readable" (name f)))))
 
@@ -274,12 +274,12 @@ Returns a result containing the string on success and an error if the file is
 not readable.")
   (defn read-all [f]
     (let-do [fd @(file f)]
-      (IO.fseek fd 0 IO.SEEK-END)
-      (let-do [len (IO.ftell fd)]
-        (IO.fseek fd 0 IO.SEEK-SET)
+      (ignore (IO.Raw.fseek fd 0 IO.SEEK-END))
+      (let-do [len (IO.Raw.ftell fd)]
+        (ignore (IO.Raw.fseek fd 0 IO.SEEK-SET))
         (read f len))))
 
   (doc rewind "rewinds a file.")
   (defn rewind [f]
-    (IO.rewind @(file f)))
+    (IO.Raw.rewind @(file f)))
 )
