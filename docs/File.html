@@ -25,583 +25,571 @@
                     </ul>
                 </div>
             </div>
-            <h1>
-                File
-            </h1>
-            <div class="module-description">
-                <p>A simple file abstraction for Carp.</p>
-<h2>Installation</h2>
-<p>You can obtain this library like so:</p>
-<pre><code>(load &quot;git@github.com:carpentry-org/file@0.1.1&quot;)
-</code></pre>
-<h2>Usage</h2>
-<p>The main type involved in working with this library is <code>File</code>, naturally. All
-file operations depend on the file being opened.</p>
-<pre><code>; returns a Result containing a File you can write to
-(File.open &quot;example.txt&quot;)
-
-; returns a Result containing a File you append to
-(File.open-with &quot;example.txt&quot; &quot;a&quot;)
-</code></pre>
-<p>If the file couldn’t be opened due to it not existing or file permission errors,
-a <code>Result.Error</code> with an error message is returned.</p>
-<p>The file permissions follow the <a href="https://www.tutorialspoint.com/c_standard_library/c_function_fopen.htm">file modes</a>
-in UNIX. The default is <code>&quot;a+&quot;</code>, or writing/reading. Generally, files have a
-<code>name</code>, <code>mode</code>, and <code>file</code> property; you can read safely from them, but writing
-to them directly is discouraged.</p>
-<p>Before you end your operations on the file, it is good practice to close the
-file again. In Carp, we do this using <code>close</code>.</p>
-<pre><code>(close f)
-</code></pre>
-<p>You can <code>read</code> from the file—or <code>read-all</code>, if you don’t care about length—,
-<code>write</code> to it, <code>remove</code> it, or <code>rewind</code> the file buffer.</p>
-<pre><code>(write &amp;f &quot;hi&quot;)
-(rewind &amp;f)
-(IO.println &amp;(read-all &amp;f))
-</code></pre>
-<p>All of these will check whether the files are actually readable and/or writable
-before performing any IO actions and return a <code>Result.Error</code> if they can’t.</p>
-<p>You can also ask about the modes of the file, using the functions <code>readable?</code>,
-<code>writable?</code>, or <code>binary-mode?</code>.</p>
-
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#binary-mode?">
-                    <h3 id="binary-mode?">
-                        binary-mode?
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+            <div class="module">
+                <h1>
+                    File
+                </h1>
+                <div class="module-description">
+                    
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a)] Bool)
-                </p>
-                <pre class="args">
-                    (binary-mode? f)
-                </pre>
-                <p class="doc">
-                    <p>checks whether a file is in binary mode by examining its
+                <div class="binder">
+                    <a class="anchor" href="#binary-mode?">
+                        <h3 id="binary-mode?">
+                            binary-mode?
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a)] Bool)
+                    </p>
+                    <pre class="args">
+                        (binary-mode? f)
+                    </pre>
+                    <p class="doc">
+                        <p>checks whether a file is in binary mode by examining its
 mode.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#close">
-                    <h3 id="close">
-                        close
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [File] ())
-                </p>
-                <pre class="args">
-                    (close f)
-                </pre>
-                <p class="doc">
-                    <p>closes a file and takes ownership.</p>
+                <div class="binder">
+                    <a class="anchor" href="#close">
+                        <h3 id="close">
+                            close
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [File] ())
+                    </p>
+                    <pre class="args">
+                        (close f)
+                    </pre>
+                    <p class="doc">
+                        <p>closes a file and takes ownership.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#contents">
-                    <h3 id="contents">
-                        contents
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref String a)] (Result (Array String) String))
-                </p>
-                <pre class="args">
-                    (contents s)
-                </pre>
-                <p class="doc">
-                    <p>walks a directory with the default walk mode (see also
+                <div class="binder">
+                    <a class="anchor" href="#contents">
+                        <h3 id="contents">
+                            contents
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref String a)] (Result (Array String) String))
+                    </p>
+                    <pre class="args">
+                        (contents s)
+                    </pre>
+                    <p class="doc">
+                        <p>walks a directory with the default walk mode (see also
 <a href="#default-walk"><code>default-walk</code></a>).</p>
 <p>Returns a result containing either the contents of that directory or an error
 if the directory couldn’t be opened due to permission errors or if the user
 tried to open a nonexistant directory.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#contents-with">
-                    <h3 id="contents-with">
-                        contents-with
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref String a), (Ref WalkOptions b)] (Result (Array String) String))
-                </p>
-                <pre class="args">
-                    (contents-with s options)
-                </pre>
-                <p class="doc">
-                    <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
+                <div class="binder">
+                    <a class="anchor" href="#contents-with">
+                        <h3 id="contents-with">
+                            contents-with
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref String a), (Ref WalkOptions b)] (Result (Array String) String))
+                    </p>
+                    <pre class="args">
+                        (contents-with s options)
+                    </pre>
+                    <p class="doc">
+                        <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
 <p>Returns a result containing either the directory contents or an error if the
 directory couldn’t be opened due to permission errors or if the user tried to
 open a nonexistant directory.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#copy">
-                    <h3 id="copy">
-                        copy
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a)] File)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>copies a <code>File</code>.</p>
+                <div class="binder">
+                    <a class="anchor" href="#copy">
+                        <h3 id="copy">
+                            copy
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a)] File)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>copies a <code>File</code>.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#default-mode">
-                    <h3 id="default-mode">
-                        default-mode
-                    </h3>
-                </a>
-                <div class="description">
-                    def
+                    </p>
                 </div>
-                <p class="sig">
-                    (Ref String a)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>is the default file mode, used by <a href="#open"><code>open</code></a>.</p>
+                <div class="binder">
+                    <a class="anchor" href="#default-mode">
+                        <h3 id="default-mode">
+                            default-mode
+                        </h3>
+                    </a>
+                    <div class="description">
+                        def
+                    </div>
+                    <p class="sig">
+                        (Ref String a)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>is the default file mode, used by <a href="#open"><code>open</code></a>.</p>
 <p>Initially set to <code>a+</code>.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#default-walk">
-                    <h3 id="default-walk">
-                        default-walk
-                    </h3>
-                </a>
-                <div class="description">
-                    def
+                    </p>
                 </div>
-                <p class="sig">
-                    WalkOptions
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>is the default options used by <a href="#walk"><code>walk</code></a>.</p>
+                <div class="binder">
+                    <a class="anchor" href="#default-walk">
+                        <h3 id="default-walk">
+                            default-walk
+                        </h3>
+                    </a>
+                    <div class="description">
+                        def
+                    </div>
+                    <p class="sig">
+                        WalkOptions
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>is the default options used by <a href="#walk"><code>walk</code></a>.</p>
 <p>Initially set to recursive, not following links, and not matching directories
 or dotfiles.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#map">
-                    <h3 id="map">
-                        map
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref String a), (Ref (Fn [(Ref String b)] c d) e)] (Result (Array c) String))
-                </p>
-                <pre class="args">
-                    (map s callback)
-                </pre>
-                <p class="doc">
-                    <p>walks a directory with the default walk mode (see also
+                <div class="binder">
+                    <a class="anchor" href="#delete">
+                        <h3 id="delete">
+                            delete
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [File] ())
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>deletes a <code>File</code>.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#map">
+                        <h3 id="map">
+                            map
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref String a), (Ref (Fn [(Ref String b)] c d) e)] (Result (Array c) String))
+                    </p>
+                    <pre class="args">
+                        (map s callback)
+                    </pre>
+                    <p class="doc">
+                        <p>walks a directory with the default walk mode (see also
 <a href="#default-walk"><code>default-walk</code></a>).</p>
 <p>Returns a result containing either the results of the walker function as an
 array or an error if the directory couldn’t be opened due to permission errors
 or if the user tried to open a nonexistant directory.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#map-with">
-                    <h3 id="map-with">
-                        map-with
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref String a), (Ref (Fn [(Ref String b)] c d) e), (Ref WalkOptions f)] (Result (Array c) String))
-                </p>
-                <pre class="args">
-                    (map-with s callback options)
-                </pre>
-                <p class="doc">
-                    <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
+                <div class="binder">
+                    <a class="anchor" href="#map-with">
+                        <h3 id="map-with">
+                            map-with
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref String a), (Ref (Fn [(Ref String b)] c d) e), (Ref WalkOptions f)] (Result (Array c) String))
+                    </p>
+                    <pre class="args">
+                        (map-with s callback options)
+                    </pre>
+                    <p class="doc">
+                        <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
 <p>Returns a result containing either the results of the walker function as an
 array or an error if the directory couldn’t be opened due to permission errors
 or if the user tried to open a nonexistant directory.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#mode">
-                    <h3 id="mode">
-                        mode
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a)] (Ref String a))
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>gets the <code>mode</code> property of a <code>File</code>.</p>
+                <div class="binder">
+                    <a class="anchor" href="#mode">
+                        <h3 id="mode">
+                            mode
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a)] (Ref String a))
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>gets the <code>mode</code> property of a <code>File</code>.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#name">
-                    <h3 id="name">
-                        name
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a)] (Ref String a))
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>gets the <code>name</code> property of a <code>File</code>.</p>
+                <div class="binder">
+                    <a class="anchor" href="#name">
+                        <h3 id="name">
+                            name
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a)] (Ref String a))
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>gets the <code>name</code> property of a <code>File</code>.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#open">
-                    <h3 id="open">
-                        open
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref String a)] (Result File String))
-                </p>
-                <pre class="args">
-                    (open name)
-                </pre>
-                <p class="doc">
-                    <p>opens a file with the default file mode (see also
+                <div class="binder">
+                    <a class="anchor" href="#open">
+                        <h3 id="open">
+                            open
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref String a)] (Result File String))
+                    </p>
+                    <pre class="args">
+                        (open name)
+                    </pre>
+                    <p class="doc">
+                        <p>opens a file with the default file mode (see also
 <a href="#default-mode"><code>default-mode</code></a>).</p>
 <p>Returns a result containing either a file, or an error if the file couldn’t be
 opened due to permission errors or if the user tried to read from a nonexistant
 file.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#open-with">
-                    <h3 id="open-with">
-                        open-with
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref String a), (Ref String b)] (Result File String))
-                </p>
-                <pre class="args">
-                    (open-with name mode)
-                </pre>
-                <p class="doc">
-                    <p>opens a file with custom file mode.</p>
+                <div class="binder">
+                    <a class="anchor" href="#open-with">
+                        <h3 id="open-with">
+                            open-with
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref String a), (Ref String b)] (Result File String))
+                    </p>
+                    <pre class="args">
+                        (open-with name mode)
+                    </pre>
+                    <p class="doc">
+                        <p>opens a file with custom file mode.</p>
 <p>Returns a result containing either a file, or an error if the file couldn’t be
 opened due to permission errors or if the user tried to read from a nonexistant
 file.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#prn">
-                    <h3 id="prn">
-                        prn
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a)] String)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>converts a <code>File</code> to a string.</p>
+                <div class="binder">
+                    <a class="anchor" href="#prn">
+                        <h3 id="prn">
+                            prn
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a)] String)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>converts a <code>File</code> to a string.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#read">
-                    <h3 id="read">
-                        read
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a), Int] (Result String String))
-                </p>
-                <pre class="args">
-                    (read f len)
-                </pre>
-                <p class="doc">
-                    <p>reads a string of length <code>len</code> from a file.</p>
+                <div class="binder">
+                    <a class="anchor" href="#read">
+                        <h3 id="read">
+                            read
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a), Int] (Result String String))
+                    </p>
+                    <pre class="args">
+                        (read f len)
+                    </pre>
+                    <p class="doc">
+                        <p>reads a string of length <code>len</code> from a file.</p>
 <p>Returns a result containing the string on success and an error if the file is
 not readable.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#read-all">
-                    <h3 id="read-all">
-                        read-all
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a)] (Result String String))
-                </p>
-                <pre class="args">
-                    (read-all f)
-                </pre>
-                <p class="doc">
-                    <p>reads the entire file content of a file.</p>
+                <div class="binder">
+                    <a class="anchor" href="#read-all">
+                        <h3 id="read-all">
+                            read-all
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a)] (Result String String))
+                    </p>
+                    <pre class="args">
+                        (read-all f)
+                    </pre>
+                    <p class="doc">
+                        <p>reads the entire file content of a file.</p>
 <p>Returns a result containing the string on success and an error if the file is
 not readable.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#readable?">
-                    <h3 id="readable?">
-                        readable?
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a)] Bool)
-                </p>
-                <pre class="args">
-                    (readable? f)
-                </pre>
-                <p class="doc">
-                    <p>checks whether a file is readable by examining its mode.</p>
+                <div class="binder">
+                    <a class="anchor" href="#readable?">
+                        <h3 id="readable?">
+                            readable?
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a)] Bool)
+                    </p>
+                    <pre class="args">
+                        (readable? f)
+                    </pre>
+                    <p class="doc">
+                        <p>checks whether a file is readable by examining its mode.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#remove">
-                    <h3 id="remove">
-                        remove
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a)] ())
-                </p>
-                <pre class="args">
-                    (remove f)
-                </pre>
-                <p class="doc">
-                    <p>removes a file from the file system.</p>
+                <div class="binder">
+                    <a class="anchor" href="#remove">
+                        <h3 id="remove">
+                            remove
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a)] ())
+                    </p>
+                    <pre class="args">
+                        (remove f)
+                    </pre>
+                    <p class="doc">
+                        <p>removes a file from the file system.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#rewind">
-                    <h3 id="rewind">
-                        rewind
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a)] ())
-                </p>
-                <pre class="args">
-                    (rewind f)
-                </pre>
-                <p class="doc">
-                    <p>rewinds a file.</p>
+                <div class="binder">
+                    <a class="anchor" href="#rewind">
+                        <h3 id="rewind">
+                            rewind
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a)] ())
+                    </p>
+                    <pre class="args">
+                        (rewind f)
+                    </pre>
+                    <p class="doc">
+                        <p>rewinds a file.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#str">
-                    <h3 id="str">
-                        str
-                    </h3>
-                </a>
-                <div class="description">
-                    instantiate
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a)] String)
-                </p>
-                <span>
-                    
-                </span>
-                <p class="doc">
-                    <p>converts a <code>File</code> to a string.</p>
+                <div class="binder">
+                    <a class="anchor" href="#str">
+                        <h3 id="str">
+                            str
+                        </h3>
+                    </a>
+                    <div class="description">
+                        instantiate
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a)] String)
+                    </p>
+                    <span>
+                        
+                    </span>
+                    <p class="doc">
+                        <p>converts a <code>File</code> to a string.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#walk">
-                    <h3 id="walk">
-                        walk
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref String a), (Ref (Fn [(Ref String b)] () c) d)] (Result Int String))
-                </p>
-                <pre class="args">
-                    (walk s callback)
-                </pre>
-                <p class="doc">
-                    <p>walks a directory with the default walk mode (see also
+                <div class="binder">
+                    <a class="anchor" href="#walk">
+                        <h3 id="walk">
+                            walk
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref String a), (Ref (Fn [(Ref String b)] () c) d)] (Result Int String))
+                    </p>
+                    <pre class="args">
+                        (walk s callback)
+                    </pre>
+                    <p class="doc">
+                        <p>walks a directory with the default walk mode (see also
 <a href="#default-walk"><code>default-walk</code></a>).</p>
 <p>Returns a result containing either nothing, or an error if the directory
 couldn’t be opened due to permission errors or if the user tried to open a
 nonexistant directory.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#walk-mode">
-                    <h3 id="walk-mode">
-                        walk-mode
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [Bool, Bool, Bool, Bool] WalkOptions)
-                </p>
-                <pre class="args">
-                    (walk-mode recursive? follow-links? dotfiles? match-dirs?)
-                </pre>
-                <p class="doc">
-                    <p>constructs a mode for <a href="#walk-with"><code>walk-with</code></a>.</p>
+                <div class="binder">
+                    <a class="anchor" href="#walk-mode">
+                        <h3 id="walk-mode">
+                            walk-mode
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [Bool, Bool, Bool, Bool] WalkOptions)
+                    </p>
+                    <pre class="args">
+                        (walk-mode recursive? follow-links? dotfiles? match-dirs?)
+                    </pre>
+                    <p class="doc">
+                        <p>constructs a mode for <a href="#walk-with"><code>walk-with</code></a>.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#walk-with">
-                    <h3 id="walk-with">
-                        walk-with
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref String a), (Ref (Fn [(Ref String b)] () c) d), (Ref WalkOptions e)] (Result Int String))
-                </p>
-                <pre class="args">
-                    (walk-with s callback options)
-                </pre>
-                <p class="doc">
-                    <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
+                <div class="binder">
+                    <a class="anchor" href="#walk-with">
+                        <h3 id="walk-with">
+                            walk-with
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref String a), (Ref (Fn [(Ref String b)] () c) d), (Ref WalkOptions e)] (Result Int String))
+                    </p>
+                    <pre class="args">
+                        (walk-with s callback options)
+                    </pre>
+                    <p class="doc">
+                        <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
 <p>Returns a result containing either nothing, or an error if the directory
 couldn’t be opened due to permission errors or if the user tried to open a
 nonexistant directory.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#writable?">
-                    <h3 id="writable?">
-                        writable?
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a)] Bool)
-                </p>
-                <pre class="args">
-                    (writable? f)
-                </pre>
-                <p class="doc">
-                    <p>checks whether a file is writable by examining its mode.</p>
+                <div class="binder">
+                    <a class="anchor" href="#writable?">
+                        <h3 id="writable?">
+                            writable?
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a)] Bool)
+                    </p>
+                    <pre class="args">
+                        (writable? f)
+                    </pre>
+                    <p class="doc">
+                        <p>checks whether a file is writable by examining its mode.</p>
 
-                </p>
-            </div>
-            <div class="binder">
-                <a class="anchor" href="#write">
-                    <h3 id="write">
-                        write
-                    </h3>
-                </a>
-                <div class="description">
-                    defn
+                    </p>
                 </div>
-                <p class="sig">
-                    (Fn [(Ref File a), (Ref String b)] (Result Int String))
-                </p>
-                <pre class="args">
-                    (write f string)
-                </pre>
-                <p class="doc">
-                    <p>writes a string <code>string</code> to a file.</p>
+                <div class="binder">
+                    <a class="anchor" href="#write">
+                        <h3 id="write">
+                            write
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a), (Ref String b)] (Result Int String))
+                    </p>
+                    <pre class="args">
+                        (write f string)
+                    </pre>
+                    <p class="doc">
+                        <p>writes a string <code>string</code> to a file.</p>
 <p>Returns a result containing nothing on success and an error if the file is not
 writable.</p>
 
-                </p>
+                    </p>
+                </div>
             </div>
         </div>
     </body>
