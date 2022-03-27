@@ -2,15 +2,13 @@
 
 (defmodule File
   (defmodule StringReader
-    (doc read "reads a string of length `len` from a file."
+    (doc read-string "reads a string of length `len` from a file."
      ("Returns a result containing the string on success and an error if " false)
      "the file is not readable.")
-    (defn read [f len]
-      (if (readable? f)
-        (let-do [s (String.allocate len (Char.from-int 0))]
-          (ignore (IO.Raw.fread &s 1 len @(file f)))
-          (Result.Success s))
-        (Result.Error (fmt "The file “%s” is not readable" (name f)))))
-    (implements read read)
+    (defn read-string [f len]
+      (let-do [s (String.allocate len (Char.from-int 0))]
+        (ignore (IO.Raw.fread &s 1 len @(file f)))
+        (Result.Success s)))
+    (implements read-from-file read-string)
   )
 )

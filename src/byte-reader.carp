@@ -2,20 +2,19 @@
 
 (defmodule File
   (defmodule ByteReader
+    ;; TODO: Use the safer IO.fgetc once in HEAD
     (doc read-byte "Read a single byte from a file.")
     (defn read-byte [file]
       (to-byte (Char.from-int (IO.Raw.fgetc file))))
 
-    (doc read "Read n bytes from a file.")
-    (defn read [f n]
-      (if (readable? f)
-          (let-do [bytes (Array.allocate n)
-                   i 0]
-            (while-do (< i n)
-              (Array.aset-uninitialized! &bytes i (read-byte @(file f)))
-              (++ i))
-            (Result.Success bytes))
-          (Result.Error (fmt "The file %s is not readable" (name f)))))
-    (implements read read)
+    (doc read-bytes "Read n bytes from a file.")
+    (defn read-bytes [f n]
+      (let-do [bytes (Array.allocate n)
+               i 0]
+        (while-do (< i n)
+          (Array.aset-uninitialized! &bytes i (read-byte @(file f)))
+          (++ i))
+        (Result.Success bytes)))
+    (implements read-from-file read-bytes)
   )
 )

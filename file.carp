@@ -258,6 +258,27 @@ writable.")
         (Result.Success 0))
       (Result.Error (fmt "The file “%s” is not writable" (name f)))))
 
+  (doc read 
+    "Reads len values from a file."
+    ""
+    ("This function is generic in its return argument. You can " false)
+    ("provide a custom reader implementation by implementing the " false)
+    "read-from-file interface."
+    ""
+    ("The surrounding context typically determine's the return type." false)
+    ("if no implementation of read-from-file exists for the type, you'll " false)
+    "need to provide one. You can also use `the` to specify the return type."
+    "For example (to read the first 3 bytes of the file):"
+    "```"
+    "(match (File.open-with \"test-file.txt\" \"r\")"
+    "  (Result.Success f) (the (Result (Array Byte) String) (File.read &f 3))"
+    "  (Result.Error x) (the (Result (Array Byte) String) (Result.Error x))))"
+    "```")
+  (defn read [f len]
+    (if (readable? f)
+        (read-from-file f len)
+        (Result.Error (fmt "The file “%s” is not readable" (name f)))))
+
   (doc read-all "reads the entire file content of a file.
 
 Returns a result containing the string on success and an error if the file is
