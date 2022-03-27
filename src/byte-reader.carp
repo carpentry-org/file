@@ -16,5 +16,13 @@
           (++ i))
         (Result.Success bytes)))
     (implements read-from-file read-bytes)
+
+    (doc read 
+      "Reads an array of bytes of length n from a file."
+      ("This is a convenient wrapper that fixes the return" false)
+      "type of File.read to (Array Byte)")
+    (sig read (Fn [&File Int] (Result (Array Byte) String)))
+    (defn read [file n]
+      (File.read file n))
   )
 )

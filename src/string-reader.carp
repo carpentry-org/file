@@ -10,5 +10,13 @@
         (ignore (IO.Raw.fread &s 1 len @(file f)))
         (Result.Success s)))
     (implements read-from-file read-string)
+
+    (doc read 
+      "Reads a string of length n from a file."
+      ("This is a convenient wrapper that fixes the return" false)
+      "type of File.read to String.")
+    (sig read (Fn [&File Int] (Result String String)))
+    (defn read [file n]
+      (File.read file n))
   )
 )
