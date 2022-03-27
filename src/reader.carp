@@ -1,0 +1,7 @@
+;;;; A reader interface.
+;;;; Implementations should return Result.Success containing the read data type
+;;;; value on a successful read.
+;;;; 
+;;;; see: src/byte-reader.carp and src/string-reader.carp for examples. 
+
+(definterface read (Fn [(Ref File) Int] (Result a String)))

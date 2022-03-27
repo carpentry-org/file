@@ -1,4 +1,5 @@
 (relative-include "file_helper.h")
+(load "src/reader.carp")
 
 (defmodule Dir
   (register open (Fn [(Ptr CChar)] (Ptr DIR)) "opendir")
@@ -257,17 +258,6 @@ writable.")
         (Result.Success 0))
       (Result.Error (fmt "The file “%s” is not writable" (name f)))))
 
-  (doc read "reads a string of length `len` from a file.
-
-Returns a result containing the string on success and an error if the file is
-not readable.")
-  (defn read [f len]
-    (if (readable? f)
-      (let-do [s (String.allocate len (Char.from-int 0))]
-        (ignore (IO.Raw.fread &s 1 len @(file f)))
-        (Result.Success s))
-      (Result.Error (fmt "The file “%s” is not readable" (name f)))))
-
   (doc read-all "reads the entire file content of a file.
 
 Returns a result containing the string on success and an error if the file is
@@ -283,3 +273,6 @@ not readable.")
   (defn rewind [f]
     (IO.Raw.rewind @(file f)))
 )
+
+(load "src/byte-reader.carp")
+(load "src/string-reader.carp")
