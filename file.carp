@@ -272,7 +272,7 @@ writable.")
     "```"
     "(match (File.open-with \"test-file.txt\" \"r\")"
     "  (Result.Success f) (the (Result (Array Byte) String) (File.read &f 3))"
-    "  (Result.Error x) (the (Result (Array Byte) String) (Result.Error x))))"
+    "  (Result.Error x) (Result.Error x))))"
     "```")
   (defn read [f len]
     (if (readable? f)
