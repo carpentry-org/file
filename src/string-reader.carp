@@ -1,0 +1,22 @@
+;;;; String reader
+
+(defmodule File
+  (defmodule StringReader
+    (doc read-string "reads a string of length `len` from a file."
+     ("Returns a result containing the string on success and an error if " false)
+     "the file is not readable.")
+    (defn read-string [f len]
+      (let-do [s (String.allocate len (Char.from-int 0))]
+        (ignore (IO.Raw.fread &s 1 len @(file f)))
+        (Result.Success s)))
+    (implements read-from-file read-string)
+
+    (doc read 
+      "Reads a string of length n from a file."
+      ("This is a convenient wrapper that fixes the return" false)
+      "type of File.read to String.")
+    (sig read (Fn [&File Int] (Result String String)))
+    (defn read [file n]
+      (File.read file n))
+  )
+)

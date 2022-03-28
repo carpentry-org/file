@@ -1,0 +1,15 @@
+;;;; A reader interface.
+;;;;
+;;;; Implementations should return Result.Success containing the read data type
+;;;; value on a successful read.
+;;;;
+;;;; Implementations may assume the input file is confirmed to be readable.
+;;;;
+;;;; This property is enforced in the File API (see File.read) but direct
+;;;; callers of the read-from-file interface will need to perform this check 
+;;;; themselves.
+;;;; 
+;;;; see: src/byte-reader.carp and src/string-reader.carp for examples. 
+
+;; TODO: Add docs for this once supported on interfaces.
+(definterface read-from-file (Fn [(Ref File) Int] (Result a String)))

@@ -1,0 +1,31 @@
+;;;; Byte reader.
+
+(defmodule File
+  (defmodule ByteReader
+    (doc read-byte "Read a single byte from a file.")
+    (defn read-byte [file]
+        (Result.map (IO.fgetc file) &to-byte))
+
+    (doc read-bytes "Read `n` bytes from a file.")
+    (defn read-bytes [f n]
+      (let-do [bytes (Array.allocate n)
+               i 0
+               result (Result.Success [])]
+        (while-do (< i n)
+          (match (read-byte @(file f))
+            (Result.Success b) (Array.aset-uninitialized! &bytes i b)
+            (Result.Error err) (do (set! result (Result.Error err)) (break)))
+          (++ i))
+        (when (not (error? &result)) (set! result (Result.Success bytes)))
+        result))
+    (implements read-from-file read-bytes)
+
+    (doc read 
+      "Reads an array of bytes of length n from a file."
+      ("This is a convenient wrapper that fixes the return" false)
+      "type of File.read to (Array Byte)")
+    (sig read (Fn [&File Int] (Result (Array Byte) String)))
+    (defn read [file n]
+      (File.read file n))
+  )
+)
