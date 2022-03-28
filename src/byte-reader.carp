@@ -7,7 +7,7 @@
     (defn read-byte [file]
       (to-byte (Char.from-int (IO.Raw.fgetc file))))
 
-    (doc read-bytes "Read n bytes from a file.")
+    (doc read-bytes "Read `n` bytes from a file.")
     (defn read-bytes [f n]
       (let-do [bytes (Array.allocate n)
                i 0]
