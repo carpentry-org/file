@@ -11,7 +11,7 @@
                   "hi"
                   &(let-do [f (unsafe-from-success (File.open "example"))
                             s @""]
-                    (ignore (File.write &f "hi"))
+                    (ignore (File.write &f 2 "hi"))
                     (set! s (unsafe-from-success (File.read-all &f)))
                     (File.close f)
                     s)
