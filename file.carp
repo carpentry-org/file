@@ -1,5 +1,6 @@
 (relative-include "file_helper.h")
 (load "src/reader.carp")
+(load "src/writer.carp")
 
 (defmodule Dir
   (register open (Fn [(Ptr CChar)] (Ptr DIR)) "opendir")
@@ -247,16 +248,16 @@ file.")
   (defn remove [f]
     (ignore (IO.Raw.unlink (name f))))
 
-  (doc write "writes a string `string` to a file.
-
-Returns a result containing nothing on success and an error if the file is not
-writable.")
-  (defn write [f string]
+  (doc write
+    "Writes values of length `n` to a file. "
+    ""
+    ("This function is generic in its input. You can " false)
+    ("provide a custom reader implementation by implementing the " false)
+    "write-to-file interface")
+  (defn write [f len obj]
     (if (writable? f)
-      (let-do [ln (length string)]
-        (ignore (IO.Raw.fwrite string 1 ln @(file f)))
-        (Result.Success 0))
-      (Result.Error (fmt "The file “%s” is not writable" (name f)))))
+        (write-to-file f len obj)
+        (Result.Error (fmt "The file “%s” is not writable" (name f)))))
 
   (doc read 
     "Reads len values from a file."
@@ -297,3 +298,5 @@ not readable.")
 
 (load "src/byte-reader.carp")
 (load "src/string-reader.carp")
+(load "src/byte-writer.carp")
+(load "src/string-writer.carp")
