@@ -1,0 +1,25 @@
+(defmodule File
+  (defmodule ByteWriter
+    (defn write-byte [byte file]
+      (let [res (IO.Raw.fputc (to-int (from-byte byte)) file)]
+        (if (= res IO.Raw.EOF)
+            (Result.Error @"failed to write byte to file")
+            (Result.Success res))))
+
+    (defn write-bytes [f n bytes]
+      (let-do [limit (min (Array.length bytes) n)
+               i 0
+               result (Result.Success 0)]
+        (while-do (< i limit)
+          (match (write-byte @(Array.unsafe-nth bytes i) @(file f))
+            (Result.Success _) (set! result (Result.Success i))
+            (Result.Error err) (do (set! result (Result.Error err)) (break)))
+          (++ i))
+        result))
+    (implements write-to-file write-bytes)
+
+    (sig write (Fn [&File Int &(Array Byte)] (Result Int String)))
+    (defn write [file n bytes]
+      (File.write file n bytes))
+  )
+)
