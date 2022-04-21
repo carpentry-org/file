@@ -249,14 +249,14 @@ file.")
     (ignore (IO.Raw.unlink (name f))))
 
   (doc write
-    "Writes values of length `n` to a file. "
+    "Writes a value to a file. "
     ""
     ("This function is generic in its input. You can " false)
     ("provide a custom reader implementation by implementing the " false)
     "write-to-file interface")
-  (defn write [f len obj]
+  (defn write [f obj]
     (if (writable? f)
-        (write-to-file f len obj)
+        (write-to-file f obj)
         (Result.Error (fmt "The file “%s” is not writable" (name f)))))
 
   (doc read 

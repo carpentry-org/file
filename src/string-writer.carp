@@ -1,17 +1,17 @@
 (defmodule File
   (defmodule StringWriter
-    (defn write-string [f n string]
-      (let-do [limit (min n (length string))
-               result (IO.Raw.fwrite string 1 limit @(file f))]
-        (if (< result limit)
+    (defn write-string [f string]
+      (let-do [len (length string)
+               result (IO.Raw.fwrite string 1 len @(file f))]
+        (if (< result len)
             (Result.Error
               (fmt "write error: could not write string to file %s"
                    (name f)))
             (Result.Success result))))
     (implements write-to-file write-string)
 
-    (sig write (Fn [&File Int &String] (Result Int String)))
-    (defn write [f n string]
-      (File.write f n string))
+    (sig write (Fn [&File &String] (Result Int String)))
+    (defn write [f string]
+      (File.write f string))
   )
 )

@@ -11,4 +11,4 @@
 ;;;;
 ;;;; see: src/byte-writer.carp and src/string-writer.carp for examples.
 
-(definterface write-to-file (Fn [(Ref File) Int (Ref a)] (Result Int String)))
+(definterface write-to-file (Fn [(Ref File) a] (Result Int String)))
