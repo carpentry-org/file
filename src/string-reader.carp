@@ -7,7 +7,7 @@
      "the file is not readable.")
     (defn read-string [f len]
       (let-do [s (String.allocate len (Char.from-int 0))]
-        (ignore (IO.Raw.fread &s 1 len @(file f)))
+        (ignore (IO.Raw.fread (String.cstr &s) 1 len @(file f)))
         (Result.Success s)))
     (implements read-from-file read-string)
 
