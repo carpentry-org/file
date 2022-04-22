@@ -9,15 +9,12 @@
     (doc read-bytes "Read `n` bytes from a file.")
     (defn read-bytes [f n]
       (let-do [bytes (Array.allocate n)
-               i 0
-               result (Result.Success [])]
-        (while-do (< i n)
-          (match (read-byte @(file f))
-            (Result.Success b) (Array.aset-uninitialized! &bytes i b)
-            (Result.Error err) (do (set! result (Result.Error err)) (break)))
-          (++ i))
-        (when (not (error? &result)) (set! result (Result.Success bytes)))
-        result))
+               result (IO.Raw.fread (Array.unsafe-raw &bytes) 1 n @(file f))]
+        (if (IO.Raw.feof @(file f))
+            (Result.Error @"EOF encountered while reading")
+            (if (IO.Raw.ferror @(file f))
+                (Result.Error @"Error encountered while reading")
+                (Result.Success bytes)))))
     (implements read-from-file read-bytes)
 
     (doc read 
