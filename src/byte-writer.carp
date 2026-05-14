@@ -3,8 +3,8 @@
     (defn write-byte [byte file]
       (let [res (IO.Raw.fputc (to-int (from-byte byte)) file)]
         (if (= res IO.Raw.EOF)
-            (Result.Error @"failed to write byte to file")
-            (Result.Success res))))
+          (Result.Error @"failed to write byte to file")
+          (Result.Success res))))
 
     (defn write-bytes [f bytes]
       (let-do [i 0
@@ -18,7 +18,4 @@
     (implements write-to-file write-bytes)
 
     (sig write (Fn [&File &(Array Byte)] (Result Int String)))
-    (defn write [file bytes]
-      (File.write file bytes))
-  )
-)
+    (defn write [file bytes] (File.write file bytes))))

@@ -8,85 +8,68 @@
 (defn main []
   (with-test test
     (assert-equal test
-                  "hi"
-                  &(let-do [f (unsafe-from-success (File.open "example"))
-                            s @""]
-                    (ignore (File.write &f "hi"))
-                    (set! s (unsafe-from-success (File.read-all &f)))
-                    (File.close f)
-                    s)
-                  "reading and writing works"
-    )
+      "hi"
+      &(let-do [f (unsafe-from-success (File.open "example"))
+                s @""]
+        (ignore (File.write &f "hi"))
+        (set! s (unsafe-from-success (File.read-all &f)))
+        (File.close f)
+        s)
+      "reading and writing works")
     (assert-true test
-                 (let [f (unsafe-from-success (File.open "example"))]
-                   (File.writable? &f))
-                  "writable? works I"
-    )
+      (let [f (unsafe-from-success (File.open "example"))] (File.writable? &f))
+      "writable? works I")
     (assert-false test
-                  (let [f (unsafe-from-success (File.open-with "example" "r"))]
-                    (File.writable? &f))
-                   "writable? works II"
-    )
+      (let [f (unsafe-from-success (File.open-with "example" "r"))]
+        (File.writable? &f))
+      "writable? works II")
     (assert-true test
-                 (let [f (unsafe-from-success (File.open "example"))]
-                   (File.readable? &f))
-                  "readable? works I"
-    )
+      (let [f (unsafe-from-success (File.open "example"))] (File.readable? &f))
+      "readable? works I")
     (assert-false test
-                  (let [f (unsafe-from-success (File.open-with "example" "w"))]
-                    (File.readable? &f))
-                   "readable? works II"
-    )
+      (let [f (unsafe-from-success (File.open-with "example" "w"))]
+        (File.readable? &f))
+      "readable? works II")
     (assert-true test
-                 (let [f (unsafe-from-success (File.open-with "example" "rb"))]
-                   (File.binary-mode? &f))
-                  "binary-mode? works I"
-    )
+      (let [f (unsafe-from-success (File.open-with "example" "rb"))]
+        (File.binary-mode? &f))
+      "binary-mode? works I")
     (assert-false test
-                  (let [f (unsafe-from-success (File.open "example"))]
-                    (File.binary-mode? &f))
-                   "binary-mode? works II"
-    )
+      (let [f (unsafe-from-success (File.open "example"))]
+        (File.binary-mode? &f))
+      "binary-mode? works II")
     (assert-true test
-                 (let [f (File.open-with "doesntexist" "r")]
-                   (error? &f))
-                 "opening non-existant file returns Result.Error"
-    )
+      (let [f (File.open-with "doesntexist" "r")] (error? &f))
+      "opening non-existant file returns Result.Error")
     (assert-equal test
-                  &(Result.Error @"Can’t open 'doesntexist'")
-                  &(File.walk "doesntexist" &(fn [s] ()))
-                  "opening non-existant directory returns Result.Error"
-    )
+      &(Result.Error @"Can’t open 'doesntexist'")
+      &(File.walk "doesntexist" &(fn [s] ()))
+      "opening non-existant directory returns Result.Error")
     (assert-equal test
-                  2
-                  (do
-                    (ignore (File.walk "test" &(fn [_] (set! test-acc (+ test-acc 1)))))
-                    test-acc)
-                  "walk works on directory"
-    )
+      2
+      (do
+        (ignore (File.walk "test" &(fn [_] (set! test-acc (+ test-acc 1)))))
+        test-acc)
+      "walk works on directory")
     (do (set! test-acc 0) @test)
     (assert-equal test
-                  3
-                  (do
-                    (ignore (File.walk-with
-                              "test"
-                              &(fn [_] (set! test-acc (+ test-acc 1)))
-                              &(WalkOptions.init true false false true)))
-                    test-acc)
-                  "walk-with works on directory"
-    )
+      3
+      (do
+        (ignore
+          (File.walk-with
+            "test"
+            &(fn [_] (set! test-acc (+ test-acc 1)))
+            &(WalkOptions.init true false false true)))
+        test-acc)
+      "walk-with works on directory")
     (assert-equal test
-                  &[@"./test/nested/fixture" @"./test/file.carp"]
-                  &(Result.from-success (File.map "test" &(fn [s] (fmt "./%s" s))) [])
-                  "map works on directory"
-    )
+      &[@"./test/nested/fixture" @"./test/file.carp"]
+      &(Result.from-success (File.map "test" &(fn [s] (fmt "./%s" s))) [])
+      "map works on directory")
     (assert-equal test
-                  &[@"test/nested/fixture" @"test/file.carp"]
-                  &(Result.from-success (File.contents "test") [])
-                  "contents works on directory"
-    )
+      &[@"test/nested/fixture" @"test/file.carp"]
+      &(Result.from-success (File.contents "test") [])
+      "contents works on directory")
     (let-do [f (unsafe-from-success (File.open "example"))]
       (File.remove &f)
-      @test)
-  )
-)
+      @test)))

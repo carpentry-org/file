@@ -6,23 +6,19 @@
   (register open (Fn [(Ptr CChar)] (Ptr DIR)) "opendir")
   (register close (Fn [(Ptr DIR)] ()) "closedir")
   (register read (Fn [(Ptr DIR)] (Ptr DirEntry)) "readdir")
-  (register d-name (Fn [(Ptr DirEntry)] (Ptr CChar)) "Dir_d_name")
-)
+  (register d-name (Fn [(Ptr DirEntry)] (Ptr CChar)) "Dir_d_name"))
 
-(deftype File [name String, mode String, file (Ptr FILE)])
-(deftype WalkOptions [
-  recursive? Bool,
-  follow-links? Bool,
-  dotfiles? Bool,
-  match-dirs? Bool,
-])
+(deftype File [name String
+               mode String
+               file (Ptr FILE)])
+(deftype WalkOptions
+  [recursive? Bool
+   follow-links? Bool
+   dotfiles? Bool
+   match-dirs? Bool])
 
 (defmacro until-expr [bs expr body]
-  (list 'while true
-    (list 'let bs
-      (list 'if expr
-        '(break)
-        (list 'do body)))))
+  (list 'while true (list 'let bs (list 'if expr '(break) (list 'do body)))))
 
 (doc File "A simple file abstraction for Carp.
 
@@ -113,7 +109,8 @@ You can also ask about the modes of the file, using the functions `readable?`,
             (null? dent)
             (let [name &(from-cstr (Dir.d-name dent))]
               (cond
-                (and (not @(WalkOptions.dotfiles? spec)) (starts-with? name ".")) ()
+                (and (not @(WalkOptions.dotfiles? spec)) (starts-with? name "."))
+                  ()
                 (or (= name ".") (= name "..")) ()
                 (let-do [f (fmt "%s/%s" dname name)
                          lres (stat &f)]
@@ -122,13 +119,13 @@ You can also ask about the modes of the file, using the functions `readable?`,
                       (do
                         (set! res (Result.Error (fmt "Can’t stat '%s'" &f)))
                         (break))
-                    (and (is-link lres) (not @(WalkOptions.follow-links? spec))) ()
+                    (and (is-link lres) (not @(WalkOptions.follow-links? spec)))
+                      ()
                     (is-dir lres)
                       (do
                         (when @(WalkOptions.recursive? spec)
                           (walk-recur &f op spec))
-                        (when @(WalkOptions.match-dirs? spec)
-                          (~op &f)))
+                        (when @(WalkOptions.match-dirs? spec) (~op &f)))
                     (~op &f))))))
           (Dir.close dir)
           res))))
@@ -150,8 +147,7 @@ or dotfiles.")
 Returns a result containing either nothing, or an error if the directory
 couldn’t be opened due to permission errors or if the user tried to open a
 nonexistant directory.")
-  (defn walk-with [s callback options]
-    (walk-recur s callback options))
+  (defn walk-with [s callback options] (walk-recur s callback options))
 
   (doc walk "walks a directory with the default walk mode (see also
 [`default-walk`](#default-walk)).
@@ -159,8 +155,7 @@ nonexistant directory.")
 Returns a result containing either nothing, or an error if the directory
 couldn’t be opened due to permission errors or if the user tried to open a
 nonexistant directory.")
-  (defn walk [s callback]
-    (walk-with s callback &default-walk))
+  (defn walk [s callback] (walk-with s callback &default-walk))
 
   (doc map-with "walks a directory with a custom [walk mode](#walk-mode).
 
@@ -180,16 +175,14 @@ or if the user tried to open a nonexistant directory.")
 Returns a result containing either the results of the walker function as an
 array or an error if the directory couldn’t be opened due to permission errors
 or if the user tried to open a nonexistant directory.")
-  (defn map [s callback]
-    (map-with s callback &default-walk))
+  (defn map [s callback] (map-with s callback &default-walk))
 
   (doc contents-with "walks a directory with a custom [walk mode](#walk-mode).
 
 Returns a result containing either the directory contents or an error if the
 directory couldn’t be opened due to permission errors or if the user tried to
 open a nonexistant directory.")
-  (defn contents-with [s options]
-    (map-with s &copy options))
+  (defn contents-with [s options] (map-with s &copy options))
 
   (doc contents "walks a directory with the default walk mode (see also
 [`default-walk`](#default-walk)).
@@ -197,8 +190,7 @@ open a nonexistant directory.")
 Returns a result containing either the contents of that directory or an error
 if the directory couldn’t be opened due to permission errors or if the user
 tried to open a nonexistant directory.")
-  (defn contents [s]
-    (contents-with s &default-walk))
+  (defn contents [s] (contents-with s &default-walk))
 
   (doc default-mode "is the default file mode, used by [`open`](#open).
 
@@ -207,18 +199,19 @@ Initially set to `a+`.")
 
   (doc readable? "checks whether a file is readable by examining its mode.")
   (defn readable? [f]
-    (or (> (String.index-of (mode f) \+) -1)
-        (> (String.index-of (mode f) \r) -1)))
+    (or
+      (> (String.index-of (mode f) \+) -1)
+      (> (String.index-of (mode f) \r) -1)))
 
   (doc writable? "checks whether a file is writable by examining its mode.")
   (defn writable? [f]
-    (or (> (String.index-of (mode f) \w) -1)
-        (> (String.index-of (mode f) \a) -1)))
+    (or
+      (> (String.index-of (mode f) \w) -1)
+      (> (String.index-of (mode f) \a) -1)))
 
   (doc binary-mode? "checks whether a file is in binary mode by examining its
 mode.")
-  (defn binary-mode? [f]
-    (> (String.index-of (mode f) \b) -1))
+  (defn binary-mode? [f] (> (String.index-of (mode f) \b) -1))
 
   (doc open-with "opens a file with custom file mode.
 
@@ -237,16 +230,13 @@ file.")
 Returns a result containing either a file, or an error if the file couldn’t be
 opened due to permission errors or if the user tried to read from a nonexistant
 file.")
-  (defn open [name]
-    (open-with name default-mode))
+  (defn open [name] (open-with name default-mode))
 
   (doc close "closes a file and takes ownership.")
-  (defn close [f]
-    (ignore (IO.Raw.fclose @(file &f))))
+  (defn close [f] (ignore (IO.Raw.fclose @(file &f))))
 
   (doc remove "removes a file from the file system.")
-  (defn remove [f]
-    (ignore (IO.Raw.unlink (name f))))
+  (defn remove [f] (ignore (IO.Raw.unlink (name f))))
 
   (doc write
     "Writes a value to a file. "
@@ -256,10 +246,10 @@ file.")
     "write-to-file interface")
   (defn write [f obj]
     (if (writable? f)
-        (write-to-file f obj)
-        (Result.Error (fmt "The file “%s” is not writable" (name f)))))
+      (write-to-file f obj)
+      (Result.Error (fmt "The file “%s” is not writable" (name f)))))
 
-  (doc read 
+  (doc read
     "Reads len values from a file."
     ""
     ("This function is generic in its return argument. You can " false)
@@ -277,8 +267,8 @@ file.")
     "```")
   (defn read [f len]
     (if (readable? f)
-        (read-from-file f len)
-        (Result.Error (fmt "The file “%s” is not readable" (name f)))))
+      (read-from-file f len)
+      (Result.Error (fmt "The file “%s” is not readable" (name f)))))
 
   (doc read-all "reads the entire file content of a file.
 
@@ -292,9 +282,7 @@ not readable.")
         (read f len))))
 
   (doc rewind "rewinds a file.")
-  (defn rewind [f]
-    (IO.Raw.rewind @(file f)))
-)
+  (defn rewind [f] (IO.Raw.rewind @(file f))))
 
 (load "src/byte-reader.carp")
 (load "src/string-reader.carp")
