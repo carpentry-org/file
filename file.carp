@@ -105,27 +105,31 @@ You can also ask about the modes of the file, using the functions `readable?`,
         (Result.Error (fmt "Can’t open '%s'" dname))
         (do
           (until-expr [dent (Dir.read dir)]
-            (null? dent)
-            (let [name &(from-cstr (Dir.d-name dent))]
-              (cond
-                (and (not @(WalkOptions.dotfiles? spec)) (starts-with? name "."))
-                  ()
-                (or (= name ".") (= name "..")) ()
-                (let-do [f (fmt "%s/%s" dname name)
-                    lres (stat &f)]
-                  (cond
-                    (= -1 lres)
-                      (do
-                        (set! res (Result.Error (fmt "Can’t stat '%s'" &f)))
-                        (break))
-                    (and (is-link lres) (not @(WalkOptions.follow-links? spec)))
-                      ()
-                    (is-dir lres)
-                      (do
-                        (when @(WalkOptions.recursive? spec)
-                          (walk-recur &f op spec))
-                        (when @(WalkOptions.match-dirs? spec) (~op &f)))
-                    (~op &f))))))
+                      (null? dent)
+                      (let [name &(from-cstr (Dir.d-name dent))]
+                        (cond
+                          (and (not @(WalkOptions.dotfiles? spec))
+                               (starts-with? name "."))
+                            ()
+                          (or (= name ".") (= name "..")) ()
+                          (let-do [f (fmt "%s/%s" dname name)
+                                   lres (stat &f)]
+                            (cond
+                              (= -1 lres)
+                                (do
+                                  (set! res
+                                        (Result.Error (fmt "Can’t stat '%s'"
+                                                           &f)))
+                                  (break))
+                              (and (is-link lres)
+                                   (not @(WalkOptions.follow-links? spec)))
+                                ()
+                              (is-dir lres)
+                                (do
+                                  (when @(WalkOptions.recursive? spec)
+                                    (walk-recur &f op spec))
+                                  (when @(WalkOptions.match-dirs? spec) (~op &f)))
+                              (~op &f))))))
           (Dir.close dir)
           res))))
   (hidden walk-recur)
@@ -164,10 +168,9 @@ or if the user tried to open a nonexistant directory.")
   (defn map-with [s callback options]
     (let [res []
           res-ref &res]
-      (Result.map (walk-with s
-                    &(fn [e] (Array.push-back! res-ref (~callback e)))
-                    options)
-                  &(fn [_] @res-ref))))
+      (Result.map
+        (walk-with s &(fn [e] (Array.push-back! res-ref (~callback e))) options)
+        &(fn [_] @res-ref))))
 
   (doc map "walks a directory with the default walk mode (see also
 [`default-walk`](#default-walk)).

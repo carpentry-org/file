@@ -4,8 +4,8 @@
       (let-do [len (length string)
                result (IO.Raw.fwrite string 1 len @(file f))]
         (if (< result len)
-          (Result.Error (fmt "write error: could not write string to file %s"
-              (name f)))
+          (Result.Error
+            (fmt "write error: could not write string to file %s" (name f)))
           (Result.Success result))))
     (implements write-to-file write-string)
 
