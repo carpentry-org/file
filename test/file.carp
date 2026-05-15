@@ -55,11 +55,9 @@
     (assert-equal test
       3
       (do
-        (ignore
-          (File.walk-with
-            "test"
-            &(fn [_] (set! test-acc (+ test-acc 1)))
-            &(WalkOptions.init true false false true)))
+        (ignore (File.walk-with "test"
+                  &(fn [_] (set! test-acc (+ test-acc 1)))
+                  &(WalkOptions.init true false false true)))
         test-acc)
       "walk-with works on directory")
     (assert-equal test

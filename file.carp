@@ -104,8 +104,7 @@ You can also ask about the modes of the file, using the functions `readable?`,
       (if (null? dir)
         (Result.Error (fmt "Can’t open '%s'" dname))
         (do
-          (until-expr
-            [dent (Dir.read dir)]
+          (until-expr [dent (Dir.read dir)]
             (null? dent)
             (let [name &(from-cstr (Dir.d-name dent))]
               (cond
@@ -113,7 +112,7 @@ You can also ask about the modes of the file, using the functions `readable?`,
                   ()
                 (or (= name ".") (= name "..")) ()
                 (let-do [f (fmt "%s/%s" dname name)
-                         lres (stat &f)]
+                    lres (stat &f)]
                   (cond
                     (= -1 lres)
                       (do
@@ -165,9 +164,10 @@ or if the user tried to open a nonexistant directory.")
   (defn map-with [s callback options]
     (let [res []
           res-ref &res]
-      (Result.map
-        (walk-with s &(fn [e] (Array.push-back! res-ref (~callback e))) options)
-        &(fn [_] @res-ref))))
+      (Result.map (walk-with s
+                    &(fn [e] (Array.push-back! res-ref (~callback e)))
+                    options)
+                  &(fn [_] @res-ref))))
 
   (doc map "walks a directory with the default walk mode (see also
 [`default-walk`](#default-walk)).
@@ -199,15 +199,13 @@ Initially set to `a+`.")
 
   (doc readable? "checks whether a file is readable by examining its mode.")
   (defn readable? [f]
-    (or
-      (> (String.index-of (mode f) \+) -1)
-      (> (String.index-of (mode f) \r) -1)))
+    (or (> (String.index-of (mode f) \+) -1)
+        (> (String.index-of (mode f) \r) -1)))
 
   (doc writable? "checks whether a file is writable by examining its mode.")
   (defn writable? [f]
-    (or
-      (> (String.index-of (mode f) \w) -1)
-      (> (String.index-of (mode f) \a) -1)))
+    (or (> (String.index-of (mode f) \w) -1)
+        (> (String.index-of (mode f) \a) -1)))
 
   (doc binary-mode? "checks whether a file is in binary mode by examining its
 mode.")
