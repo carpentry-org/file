@@ -7,7 +7,7 @@ A simple file abstraction for Carp.
 You can obtain this library like so:
 
 ```clojure
-(load "git@github.com:carpentry-org/file@0.1.2")
+(load "git@github.com:carpentry-org/file@0.2.0")
 ```
 
 ## Usage
