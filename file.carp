@@ -207,8 +207,9 @@ Initially set to `a+`.")
 
   (doc writable? "checks whether a file is writable by examining its mode.")
   (defn writable? [f]
-    (or (> (String.index-of (mode f) \w) -1)
-        (> (String.index-of (mode f) \a) -1)))
+    (let [m (mode f)]
+      (or (> (String.index-of m \+) -1)
+          (or (> (String.index-of m \w) -1) (> (String.index-of m \a) -1)))))
 
   (doc binary-mode? "checks whether a file is in binary mode by examining its
 mode.")
@@ -223,7 +224,7 @@ file.")
     (let [f (IO.Raw.fopen name mode)]
       (if (null? f)
         (Result.Error (fmt "File “%s” could not be opened!" name))
-        (Result.Success (init @name @mode (IO.Raw.fopen name mode))))))
+        (Result.Success (init @name @mode f)))))
 
   (doc open "opens a file with the default file mode (see also
 [`default-mode`](#default-mode)).

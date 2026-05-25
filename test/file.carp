@@ -24,6 +24,24 @@
         (File.writable? &f))
       "writable? works II")
     (assert-true test
+      (let [f (unsafe-from-success (File.open-with "example" "r+"))]
+        (File.writable? &f))
+      "writable? works for r+ mode")
+    (assert-true test
+      (let [f (unsafe-from-success (File.open-with "example" "r+"))]
+        (File.readable? &f))
+      "readable? works for r+ mode")
+    (assert-equal test
+      "hello"
+      &(let-do [f (unsafe-from-success (File.open-with "example" "w+"))
+                s @""]
+        (ignore (File.write &f "hello"))
+        (File.rewind &f)
+        (set! s (unsafe-from-success (File.read-all &f)))
+        (File.close f)
+        s)
+      "open-with uses single fopen (read-write round-trip)")
+    (assert-true test
       (let [f (unsafe-from-success (File.open "example"))] (File.readable? &f))
       "readable? works I")
     (assert-false test
