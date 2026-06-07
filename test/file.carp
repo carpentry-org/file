@@ -80,12 +80,12 @@
         test-acc)
       "walk-with works on directory")
     (assert-equal test
-      &[@"./test/nested/fixture" @"./test/file.carp"]
-      &(Result.from-success (File.map "test" &(fn [s] (fmt "./%s" s))) [])
+      &(Array.sorted &[@"./test/nested/fixture" @"./test/file.carp"])
+      &(Array.sorted &(Result.from-success (File.map "test" &(fn [s] (fmt "./%s" s))) []))
       "map works on directory")
     (assert-equal test
-      &[@"test/nested/fixture" @"test/file.carp"]
-      &(Result.from-success (File.contents "test") [])
+      &(Array.sorted &[@"test/nested/fixture" @"test/file.carp"])
+      &(Array.sorted &(Result.from-success (File.contents "test") []))
       "contents works on directory")
     (let-do [f (unsafe-from-success (File.open "example"))]
       (File.remove &f)
