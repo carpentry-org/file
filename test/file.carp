@@ -81,7 +81,8 @@
       "walk-with works on directory")
     (assert-equal test
       &(Array.sorted &[@"./test/nested/fixture" @"./test/file.carp"])
-      &(Array.sorted &(Result.from-success (File.map "test" &(fn [s] (fmt "./%s" s))) []))
+      &(Array.sorted
+        &(Result.from-success (File.map "test" &(fn [s] (fmt "./%s" s))) []))
       "map works on directory")
     (assert-equal test
       &(Array.sorted &[@"test/nested/fixture" @"test/file.carp"])
