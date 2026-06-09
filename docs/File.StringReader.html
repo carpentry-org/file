@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="content">
+            <div class="logo">
+                <a href="">
+                    <img src="">
+                </a>
+                <div class="title">
+                    file
+                </div>
+                <div class="index">
+                    <ul>
+                        <li>
+                            <details>
+                                <summary>
+                                    <a href="File.html">
+                                        File
+                                    </a>
+                                </summary>
+                                <ul>
+                                    <li>
+                                        <a href="File.ByteReader.html">
+                                            ByteReader
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="File.ByteWriter.html">
+                                            ByteWriter
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="File.StringReader.html">
+                                            StringReader
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="File.StringWriter.html">
+                                            StringWriter
+                                        </a>
+                                    </li>
+                                </ul>
+                            </details>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="module">
+                <h1>
+                    File.StringReader
+                </h1>
+                <div class="module-description">
+                    
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#read">
+                        <h3 id="read">
+                            read
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a), Int] (Result String String))
+                    </p>
+                    <pre class="args">
+                        (read file n)
+                    </pre>
+                    <p class="doc">
+                        <p>Reads a string of length n from a file.
+This is a convenient wrapper that fixes the returntype of File.read to String.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#read-string">
+                        <h3 id="read-string">
+                            read-string
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a), Int] (Result String b))
+                    </p>
+                    <pre class="args">
+                        (read-string f len)
+                    </pre>
+                    <p class="doc">
+                        <p>reads a string of length <code>len</code> from a file.
+Returns a result containing the string on success and an error if the file is not readable.</p>
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
