@@ -1,14 +1,4 @@
-;;;; A writer interface.
-;;;;
-;;;; Implementations should return Result.Success containing the number of
-;;;; values written on a successful write.
-;;;;
-;;;; Implementations may assume the input file is confirmed to be writable
-;;;;
-;;;; This property is enforced in the File API (see File.write) but direct
-;;;; callers of the write-to-file interface will need to perform this check
-;;;; themselves.
-;;;;
-;;;; see: src/byte-writer.carp and src/string-writer.carp for examples.
-
+; Implementations return Result.Success containing the number of values
+; written, and may assume the file is writable. File.write enforces this, but
+; direct callers of write-to-file must check it themselves.
 (definterface write-to-file (Fn [(Ref File) a] (Result Int String)))

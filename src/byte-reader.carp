@@ -1,5 +1,3 @@
-;;;; Byte reader.
-
 (defmodule File
   (defmodule ByteReader
     (doc read-byte "Read a single byte from a file.")

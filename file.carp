@@ -97,7 +97,6 @@ You can also ask about the modes of the file, using the functions `readable?`,
   (hidden update-file)
   (hidden update-name)
 
-  ; the actual low-level implementation of File.walk
   (defn walk-recur [dname op spec]
     (let [dir (Dir.open (cstr dname))
           res (Result.Success 0)]
