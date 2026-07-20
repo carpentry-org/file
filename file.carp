@@ -126,7 +126,10 @@ You can also ask about the modes of the file, using the functions `readable?`,
                               (is-dir lres)
                                 (do
                                   (when @(WalkOptions.recursive? spec)
-                                    (walk-recur &f op spec))
+                                    (let [rec (walk-recur &f op spec)]
+                                      (when-do (Result.error? &rec)
+                                        (set! res rec)
+                                        (break))))
                                   (when @(WalkOptions.match-dirs? spec) (~op &f)))
                               (~op &f))))))
           (Dir.close dir)
@@ -146,23 +149,29 @@ or dotfiles.")
 
   (doc walk-with "walks a directory with a custom [walk mode](#walk-mode).
 
-Returns a result containing either nothing, or an error if the directory
-couldn’t be opened due to permission errors or if the user tried to open a
-nonexistant directory.")
+Returns a result containing either nothing, or an error if a directory couldn’t
+be opened due to permission errors or if the user tried to open a nonexistant
+directory.
+
+The walk aborts at the first subdirectory it can’t descend into and returns that
+error, so a success means the entire tree was visited.")
   (defn walk-with [s callback options] (walk-recur s callback options))
 
   (doc walk "walks a directory with the default walk mode (see also
 [`default-walk`](#default-walk)).
 
-Returns a result containing either nothing, or an error if the directory
-couldn’t be opened due to permission errors or if the user tried to open a
-nonexistant directory.")
+Returns a result containing either nothing, or an error if a directory couldn’t
+be opened due to permission errors or if the user tried to open a nonexistant
+directory.
+
+The walk aborts at the first subdirectory it can’t descend into and returns that
+error, so a success means the entire tree was visited.")
   (defn walk [s callback] (walk-with s callback &default-walk))
 
   (doc map-with "walks a directory with a custom [walk mode](#walk-mode).
 
 Returns a result containing either the results of the walker function as an
-array or an error if the directory couldn’t be opened due to permission errors
+array or an error if a directory couldn’t be opened due to permission errors
 or if the user tried to open a nonexistant directory.")
   (defn map-with [s callback options]
     (let [res []
@@ -175,13 +184,13 @@ or if the user tried to open a nonexistant directory.")
 [`default-walk`](#default-walk)).
 
 Returns a result containing either the results of the walker function as an
-array or an error if the directory couldn’t be opened due to permission errors
+array or an error if a directory couldn’t be opened due to permission errors
 or if the user tried to open a nonexistant directory.")
   (defn map [s callback] (map-with s callback &default-walk))
 
   (doc contents-with "walks a directory with a custom [walk mode](#walk-mode).
 
-Returns a result containing either the directory contents or an error if the
+Returns a result containing either the directory contents or an error if a
 directory couldn’t be opened due to permission errors or if the user tried to
 open a nonexistant directory.")
   (defn contents-with [s options] (map-with s &copy options))
@@ -190,7 +199,7 @@ open a nonexistant directory.")
 [`default-walk`](#default-walk)).
 
 Returns a result containing either the contents of that directory or an error
-if the directory couldn’t be opened due to permission errors or if the user
+if a directory couldn’t be opened due to permission errors or if the user
 tried to open a nonexistant directory.")
   (defn contents [s] (contents-with s &default-walk))
 
