@@ -5,6 +5,24 @@
 
 (def test-acc 0)
 
+(defn- clean-walk-fixture []
+  (do
+    (ignore (System.system "chmod -R u+rwx walk-fixture 2> /dev/null"))
+    (ignore (System.system "rm -rf walk-fixture"))))
+
+(defn- make-walk-fixture []
+  (do
+    (clean-walk-fixture)
+    (ignore (System.system "mkdir -p walk-fixture/readable walk-fixture/locked"))
+    (ignore
+      (System.system
+        "touch walk-fixture/top walk-fixture/readable/inner walk-fixture/locked/deep"))))
+
+; chmod 000 does not stop root, so probe the directory instead of assuming
+(defn- locked-dir-unreadable? []
+  (let [d (Dir.open (cstr "walk-fixture/locked"))]
+    (if (null? d) true (do (Dir.close d) false))))
+
 (defn main []
   (with-test test
     (assert-equal test
@@ -88,6 +106,24 @@
       &(Array.sorted &[@"test/nested/fixture" @"test/file.carp"])
       &(Array.sorted &(Result.from-success (File.contents "test") []))
       "contents works on directory")
+    (do (make-walk-fixture) @test)
+    (assert-equal test
+      &(Array.sorted
+        &[@"walk-fixture/locked/deep"
+          @"walk-fixture/readable/inner"
+          @"walk-fixture/top"])
+      &(Array.sorted &(Result.from-success (File.contents "walk-fixture") []))
+      "walk visits every file of a readable tree")
+    (assert-true test
+      (do
+        (ignore (System.system "chmod 000 walk-fixture/locked"))
+        (if (locked-dir-unreadable?)
+          (error? &(File.walk "walk-fixture" &(fn [_] ())))
+          (do
+            (IO.println "\t(skipped, unreadable directories are not enforced)")
+            true)))
+      "walk reports an error for an unreadable subdirectory")
+    (do (clean-walk-fixture) @test)
     (let-do [f (unsafe-from-success (File.open "example"))]
       (File.remove &f)
       @test)))
