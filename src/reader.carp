@@ -1,4 +1,4 @@
-; Implementations return Result.Success containing the read value, and may
-; assume the file is readable. File.read enforces this, but direct callers of
-; read-from-file must check it themselves.
+; Implementations read exactly the requested number of values or return a
+; Result.Error, and may assume the file is readable. File.read enforces
+; readability, but direct callers of read-from-file must check it themselves.
 (definterface read-from-file (Fn [(Ref File) Int] (Result a String)))

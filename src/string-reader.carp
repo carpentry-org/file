@@ -1,17 +1,31 @@
 (defmodule File
   (defmodule StringReader
     (doc read-string
-      "reads a string of length `len` from a file."
-      ("Returns a result containing the string on success and an error if " false)
-      "the file is not readable.")
+      "reads a string of exactly `len` characters from a file."
+      ("Returns a result containing the string on success, and an error if " false)
+      ("`len` is negative or if the file held fewer than `len` characters, in " false)
+      "which case the characters that were read are discarded."
+      ""
+      ("A success always holds `len` characters, but `String.length` reports " false)
+      "fewer if any of them are NUL.")
     (defn read-string [f len]
-      (let-do [s (String.allocate len (Char.from-int 0))]
-        (ignore (IO.Raw.fread &s 1 len @(file f)))
-        (Result.Success s)))
+      (if (< len 0)
+        (Result.Error
+          (fmt "Can’t read %d characters from the file “%s”" len (name f)))
+        (let-do [s (String.allocate len (Char.from-int 0))
+                 got (IO.Raw.fread &s 1 len @(file f))]
+          (if (= got len)
+            (Result.Success s)
+            (Result.Error
+              (fmt
+                "Expected %d characters from the file “%s”, but got %d"
+                len
+                (name f)
+                got))))))
     (implements read-from-file read-string)
 
     (doc read
-      "Reads a string of length n from a file."
+      "Reads a string of exactly n characters from a file."
       ("This is a convenient wrapper that fixes the return" false)
       "type of File.read to String.")
     (sig read (Fn [&File Int] (Result String String)))

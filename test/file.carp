@@ -23,6 +23,38 @@
   (let [d (Dir.open (cstr "walk-fixture/locked"))]
     (if (null? d) true (do (Dir.close d) false))))
 
+(defn- make-read-fixture []
+  (let-do [f (unsafe-from-success (File.open-with "read-fixture" "w+"))]
+    (ignore (File.write &f "hello"))
+    (File.close f)))
+
+(defn- read-chars [n]
+  (let-do [f (unsafe-from-success (File.open-with "read-fixture" "r"))
+           res (the (Result String String) (File.read &f n))]
+    (File.close f)
+    res))
+
+(defn- read-bytes [n]
+  (let-do [f (unsafe-from-success (File.open-with "read-fixture" "r"))
+           res (the (Result (Array Byte) String) (File.read &f n))]
+    (File.close f)
+    res))
+
+(defn- byte-count [res]
+  (match res (Result.Success b) (Array.length &b) (Result.Error _) -1))
+
+; the backgrounded writer blocks on open until the test opens the read end
+(defn- make-fifo []
+  (= 0
+     (System.system
+       "rm -f read-fifo; mkfifo read-fifo && (printf abc > read-fifo &)")))
+
+(defn- fifo-read-all-error? []
+  (let-do [f (unsafe-from-success (File.open-with "read-fifo" "r"))
+           res (error? &(the (Result String String) (File.read-all &f)))]
+    (File.close f)
+    res))
+
 (defn main []
   (with-test test
     (assert-equal test
@@ -124,6 +156,48 @@
             true)))
       "walk reports an error for an unreadable subdirectory")
     (do (clean-walk-fixture) @test)
+    (do (make-read-fixture) @test)
+    (assert-equal test
+      &(Result.Success @"hello")
+      &(read-chars 5)
+      "the string reader reads a full-length request")
+    (assert-equal test
+      5
+      (byte-count (read-bytes 5))
+      "the byte reader reads a full-length request")
+    (assert-equal test
+      &(Result.Error
+        @"Expected 20 characters from the file “read-fixture”, but got 5")
+      &(read-chars 20)
+      "the string reader reports a short read as an error")
+    (assert-equal test
+      &(Result.Error
+        @"Expected 20 bytes from the file “read-fixture”, but got 5")
+      &(read-bytes 20)
+      "the byte reader reports a short read as an error")
+    (assert-equal test
+      &(Result.Error
+        @"Can’t read -1 characters from the file “read-fixture”")
+      &(read-chars -1)
+      "the string reader rejects a negative length")
+    (assert-equal test
+      &(Result.Error @"Can’t read -1 bytes from the file “read-fixture”")
+      &(read-bytes -1)
+      "the byte reader rejects a negative length")
+    (assert-equal test
+      &(Result.Success @"")
+      &(read-chars 0)
+      "the string reader reads nothing for a length of zero")
+    (assert-equal test
+      0
+      (byte-count (read-bytes 0))
+      "the byte reader reads nothing for a length of zero")
+    (assert-true test
+      (if (make-fifo)
+        (fifo-read-all-error?)
+        (do (IO.println "\t(skipped, named pipes are not supported)") true))
+      "read-all reports an error for an unseekable stream")
+    (do (ignore (System.system "rm -f read-fixture read-fifo")) @test)
     (let-do [f (unsafe-from-success (File.open "example"))]
       (File.remove &f)
       @test)))
