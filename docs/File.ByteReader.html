@@ -74,8 +74,30 @@
                         (read file n)
                     </pre>
                     <p class="doc">
-                        <p>Reads an array of bytes of length n from a file.
+                        <p>Reads an array of exactly n bytes from a file.
 This is a convenient wrapper that fixes the returntype of File.read to (Array Byte)</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#read-at-most">
+                        <h3 id="read-at-most">
+                            read-at-most
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a), Int] (Result (Array Byte) String))
+                    </p>
+                    <pre class="args">
+                        (read-at-most f n)
+                    </pre>
+                    <p class="doc">
+                        <p>Reads up to <code>n</code> bytes from a file, stopping early at the end of it.
+Returns a result containing however many bytes were there, which may be fewer than <code>n</code> and may be none at all. Only a negative <code>n</code> is an error.</p>
+<p>Use this to read a file in chunks, where a short final chunk is expected; use <a href="#read-bytes"><code>read-bytes</code></a> when anything less than <code>n</code> bytes means the read failed.</p>
 
                     </p>
                 </div>
@@ -115,7 +137,9 @@ This is a convenient wrapper that fixes the returntype of File.read to (Array By
                         (read-bytes f n)
                     </pre>
                     <p class="doc">
-                        <p>Read <code>n</code> bytes from a file.</p>
+                        <p>Read exactly <code>n</code> bytes from a file.
+Returns a result containing the bytes on success, and an error if <code>n</code> is negative or if the file held fewer than <code>n</code> bytes, in which case the bytes that were read are discarded.</p>
+<p>See <a href="#read-at-most"><code>read-at-most</code></a> for a read that tolerates a short file.</p>
 
                     </p>
                 </div>

@@ -88,6 +88,11 @@ file again. In Carp, we do this using <code>close</code>.</p>
 </code></pre>
 <p>All of these will check whether the files are actually readable and/or writable
 before performing any IO actions and return a <code>Result.Error</code> if they can’t.</p>
+<p>Reading is all-or-nothing: asking <code>read</code> for more values than the file holds is
+a <code>Result.Error</code>, never a short result. <code>read-all</code> seeks to find the length, so
+unseekable inputs such as pipes and terminals are an error as well.</p>
+<p>When a short read is expected rather than a failure—reading a file in chunks,
+say—<code>ByteReader.read-at-most</code> returns however many bytes were there.</p>
 <p>You can also ask about the modes of the file, using the functions <code>readable?</code>,
 <code>writable?</code>, or <code>binary-mode?</code>.</p>
 
@@ -236,7 +241,7 @@ mode.</p>
                         <p>walks a directory with the default walk mode (see also
 <a href="#default-walk"><code>default-walk</code></a>).</p>
 <p>Returns a result containing either the contents of that directory or an error
-if the directory couldn’t be opened due to permission errors or if the user
+if a directory couldn’t be opened due to permission errors or if the user
 tried to open a nonexistant directory.</p>
 
                     </p>
@@ -258,7 +263,7 @@ tried to open a nonexistant directory.</p>
                     </pre>
                     <p class="doc">
                         <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
-<p>Returns a result containing either the directory contents or an error if the
+<p>Returns a result containing either the directory contents or an error if a
 directory couldn’t be opened due to permission errors or if the user tried to
 open a nonexistant directory.</p>
 
@@ -366,7 +371,7 @@ or dotfiles.</p>
                         <p>walks a directory with the default walk mode (see also
 <a href="#default-walk"><code>default-walk</code></a>).</p>
 <p>Returns a result containing either the results of the walker function as an
-array or an error if the directory couldn’t be opened due to permission errors
+array or an error if a directory couldn’t be opened due to permission errors
 or if the user tried to open a nonexistant directory.</p>
 
                     </p>
@@ -389,7 +394,7 @@ or if the user tried to open a nonexistant directory.</p>
                     <p class="doc">
                         <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
 <p>Returns a result containing either the results of the walker function as an
-array or an error if the directory couldn’t be opened due to permission errors
+array or an error if a directory couldn’t be opened due to permission errors
 or if the user tried to open a nonexistant directory.</p>
 
                     </p>
@@ -517,7 +522,8 @@ file.</p>
                         (read f len)
                     </pre>
                     <p class="doc">
-                        <p>Reads len values from a file.</p>
+                        <p>Reads exactly len values from a file.</p>
+<p>A read is all-or-nothing: if the file holds fewer than len values, the values that were read are discarded and a Result.Error naming how many were available is returned. A negative len is an error too.</p>
 <p>This function is generic in its return argument. You can provide a custom reader implementation by implementing the read-from-file interface.</p>
 <p>The surrounding context typically determine's the return type.if no implementation of read-from-file exists for the type, you'll need to provide one. You can also use <code>the</code> to specify the return type.
 For example (to read the first 3 bytes of the file):</p>
@@ -547,6 +553,8 @@ For example (to read the first 3 bytes of the file):</p>
                         <p>reads the entire file content of a file.</p>
 <p>Returns a result containing the string on success and an error if the file is
 not readable.</p>
+<p>The length is determined by seeking, so unseekable inputs such as pipes and
+terminals return an error rather than their contents.</p>
 
                     </p>
                 </div>
@@ -648,9 +656,11 @@ not readable.</p>
                     <p class="doc">
                         <p>walks a directory with the default walk mode (see also
 <a href="#default-walk"><code>default-walk</code></a>).</p>
-<p>Returns a result containing either nothing, or an error if the directory
-couldn’t be opened due to permission errors or if the user tried to open a
-nonexistant directory.</p>
+<p>Returns a result containing either nothing, or an error if a directory couldn’t
+be opened due to permission errors or if the user tried to open a nonexistant
+directory.</p>
+<p>The walk aborts at the first subdirectory it can’t descend into and returns that
+error, so a success means the entire tree was visited.</p>
 
                     </p>
                 </div>
@@ -691,9 +701,11 @@ nonexistant directory.</p>
                     </pre>
                     <p class="doc">
                         <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
-<p>Returns a result containing either nothing, or an error if the directory
-couldn’t be opened due to permission errors or if the user tried to open a
-nonexistant directory.</p>
+<p>Returns a result containing either nothing, or an error if a directory couldn’t
+be opened due to permission errors or if the user tried to open a nonexistant
+directory.</p>
+<p>The walk aborts at the first subdirectory it can’t descend into and returns that
+error, so a success means the entire tree was visited.</p>
 
                     </p>
                 </div>

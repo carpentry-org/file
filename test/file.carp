@@ -40,8 +40,32 @@
     (File.close f)
     res))
 
+(defn- read-at-most [n]
+  (let-do [f (unsafe-from-success (File.open-with "read-fixture" "r"))
+           res (File.ByteReader.read-at-most &f n)]
+    (File.close f)
+    res))
+
 (defn- byte-count [res]
   (match res (Result.Success b) (Array.length &b) (Result.Error _) -1))
+
+(defn- bytes-of [res] (match res (Result.Success b) b (Result.Error _) []))
+
+; reading a 5-byte file in 2-byte chunks: the last chunk is short, and
+; the one after it is empty
+(defn- chunked-read []
+  (let-do [f (unsafe-from-success (File.open-with "read-fixture" "r"))
+           acc []
+           go true]
+    (while go
+      (match (File.ByteReader.read-at-most &f 2)
+        (Result.Success chunk)
+          (if (Array.empty? &chunk)
+            (set! go false)
+            (set! acc (Array.push-back acc (Array.length &chunk))))
+        (Result.Error _) (set! go false)))
+    (File.close f)
+    acc))
 
 ; the backgrounded writer blocks on open until the test opens the read end
 (defn- make-fifo []
@@ -192,6 +216,41 @@
       0
       (byte-count (read-bytes 0))
       "the byte reader reads nothing for a length of zero")
+    (assert-equal test
+      5
+      (byte-count (read-at-most 5))
+      "read-at-most reads a full-length request whole")
+    (assert-equal test
+      3
+      (byte-count (read-at-most 3))
+      "read-at-most reads less than the file holds")
+    (assert-equal test
+      5
+      (byte-count (read-at-most 20))
+      "read-at-most returns a short read instead of erroring")
+    (assert-equal test
+      &[104b 101b 108b 108b 111b]
+      &(bytes-of (read-at-most 20))
+      "a short read from read-at-most holds the bytes that were there")
+    (assert-equal test
+      0
+      (byte-count (read-at-most 0))
+      "read-at-most reads nothing for a length of zero")
+    (assert-equal test
+      &(Result.Error @"Can’t read -1 bytes from the file “read-fixture”")
+      &(read-at-most -1)
+      "read-at-most rejects a negative length")
+    (assert-equal test
+      &[2 2 1]
+      &(chunked-read)
+      "read-at-most reads a file in chunks, short final chunk included")
+    (assert-true test
+      (let-do [f (unsafe-from-success (File.open-with "write-fixture" "w"))
+               res (error? &(File.ByteReader.read-at-most &f 4))]
+        (File.close f)
+        (ignore (System.system "rm -f write-fixture"))
+        res)
+      "read-at-most reports an unreadable file rather than reading nothing")
     (assert-true test
       (if (make-fifo)
         (fifo-read-all-error?)
