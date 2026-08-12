@@ -3,22 +3,61 @@
     (doc read-byte "Read a single byte from a file.")
     (defn read-byte [file] (Result.map (IO.fgetc file) &to-byte))
 
-    (doc read-bytes "Read `n` bytes from a file.")
+    (doc read-at-most
+      "Reads up to `n` bytes from a file, stopping early at the end of it."
+      ("Returns a result containing however many bytes were there, which " false)
+      ("may be fewer than `n` and may be none at all. Only a negative `n` " false)
+      "is an error."
+      ""
+      ("Use this to read a file in chunks, where a short final chunk is " false)
+      ("expected; use [`read-bytes`](#read-bytes) when anything less than " false)
+      "`n` bytes means the read failed.")
+    (defn read-at-most [f n]
+      (cond
+        ; this one is called directly rather than through File.read, so it
+        ; checks readability itself; an unreadable file would otherwise
+        ; look exactly like an empty one
+        (not (readable? f))
+        (Result.Error (fmt "The file “%s” is not readable" (name f)))
+        (< n 0)
+        (Result.Error
+          (fmt "Can’t read %d bytes from the file “%s”" n (name f)))
+        (let-do [bytes (Array.allocate n)
+                 i 0]
+          (while-do (< i n)
+            (match (read-byte @(file f))
+              (Result.Success b) (Array.aset-uninitialized! &bytes i b)
+              (Result.Error _) (break))
+            (++ i))
+          ; the full read is the common one, and it owns the buffer already
+          (if (= i n)
+            (Result.Success bytes)
+            (Result.Success (Array.prefix &bytes i))))))
+
+    (doc read-bytes
+      "Read exactly `n` bytes from a file."
+      ("Returns a result containing the bytes on success, and an error if " false)
+      ("`n` is negative or if the file held fewer than `n` bytes, in which " false)
+      "case the bytes that were read are discarded."
+      ""
+      "See [`read-at-most`](#read-at-most) for a read that tolerates a short file.")
     (defn read-bytes [f n]
-      (let-do [bytes (Array.allocate n)
-               i 0
-               result (Result.Success [])]
-        (while-do (< i n)
-          (match (read-byte @(file f))
-            (Result.Success b) (Array.aset-uninitialized! &bytes i b)
-            (Result.Error err) (do (set! result (Result.Error err)) (break)))
-          (++ i))
-        (unless (error? &result) (set! result (Result.Success bytes)))
-        result))
+      (match (read-at-most f n)
+        (Result.Error e) (Result.Error e)
+        (Result.Success bytes)
+          (let [got (Array.length &bytes)]
+            (if (= got n)
+              (Result.Success bytes)
+              (Result.Error
+                (fmt
+                  "Expected %d bytes from the file “%s”, but got %d"
+                  n
+                  (name f)
+                  got))))))
     (implements read-from-file read-bytes)
 
     (doc read
-      "Reads an array of bytes of length n from a file."
+      "Reads an array of exactly n bytes from a file."
       ("This is a convenient wrapper that fixes the return" false)
       "type of File.read to (Array Byte)")
     (sig read (Fn [&File Int] (Result (Array Byte) String)))

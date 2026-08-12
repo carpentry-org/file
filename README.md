@@ -47,6 +47,13 @@ You can `read` from the file—or `read-all`, if you don’t care about length�
 All of these will check whether the files are actually readable and/or writable
 before performing any IO actions and return a `Result.Error` if they can’t.
 
+Reading is all-or-nothing: asking `read` for more values than the file holds is
+a `Result.Error`, never a short result. `read-all` seeks to find the length, so
+unseekable inputs such as pipes and terminals are an error as well.
+
+When a short read is expected rather than a failure—reading a file in chunks,
+say—`ByteReader.read-at-most` returns however many bytes were there.
+
 You can also ask about the modes of the file, using the functions `readable?`,
 `writable?`, or `binary-mode?`.
 

@@ -74,7 +74,7 @@
                         (read file n)
                     </pre>
                     <p class="doc">
-                        <p>Reads a string of length n from a file.
+                        <p>Reads a string of exactly n characters from a file.
 This is a convenient wrapper that fixes the returntype of File.read to String.</p>
 
                     </p>
@@ -89,14 +89,15 @@ This is a convenient wrapper that fixes the returntype of File.read to String.</
                         defn
                     </div>
                     <p class="sig">
-                        (Fn [(Ref File a), Int] (Result String b))
+                        (Fn [(Ref File a), Int] (Result String String))
                     </p>
                     <pre class="args">
                         (read-string f len)
                     </pre>
                     <p class="doc">
-                        <p>reads a string of length <code>len</code> from a file.
-Returns a result containing the string on success and an error if the file is not readable.</p>
+                        <p>reads a string of exactly <code>len</code> characters from a file.
+Returns a result containing the string on success, and an error if <code>len</code> is negative or if the file held fewer than <code>len</code> characters, in which case the characters that were read are discarded.</p>
+<p>A success always holds <code>len</code> characters, but <code>String.length</code> reports fewer if any of them are NUL.</p>
 
                     </p>
                 </div>

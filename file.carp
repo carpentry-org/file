@@ -70,6 +70,13 @@ You can `read` from the file—or `read-all`, if you don’t care about length�
 All of these will check whether the files are actually readable and/or writable
 before performing any IO actions and return a `Result.Error` if they can’t.
 
+Reading is all-or-nothing: asking `read` for more values than the file holds is
+a `Result.Error`, never a short result. `read-all` seeks to find the length, so
+unseekable inputs such as pipes and terminals are an error as well.
+
+When a short read is expected rather than a failure—reading a file in chunks,
+say—`ByteReader.read-at-most` returns however many bytes were there.
+
 You can also ask about the modes of the file, using the functions `readable?`,
 `writable?`, or `binary-mode?`.")
 
@@ -260,7 +267,11 @@ file.")
       (Result.Error (fmt "The file “%s” is not writable" (name f)))))
 
   (doc read
-    "Reads len values from a file."
+    "Reads exactly len values from a file."
+    ""
+    ("A read is all-or-nothing: if the file holds fewer than len values, " false)
+    ("the values that were read are discarded and a Result.Error naming " false)
+    "how many were available is returned. A negative len is an error too."
     ""
     ("This function is generic in its return argument. You can " false)
     ("provide a custom reader implementation by implementing the " false)
@@ -283,13 +294,28 @@ file.")
   (doc read-all "reads the entire file content of a file.
 
 Returns a result containing the string on success and an error if the file is
-not readable.")
+not readable.
+
+The length is determined by seeking, so unseekable inputs such as pipes and
+terminals return an error rather than their contents.")
   (defn read-all [f]
-    (let-do [fd @(file f)]
-      (ignore (IO.Raw.fseek fd 0 IO.SEEK-END))
-      (let-do [len (IO.Raw.ftell fd)]
-        (ignore (IO.Raw.fseek fd 0 IO.SEEK-SET))
-        (read f len))))
+    (let [fd @(file f)]
+      (if (/= 0 (IO.Raw.fseek fd 0 IO.SEEK-END))
+        (Result.Error
+          (fmt
+            "The file “%s” can’t be seeked, so its length is unknown"
+            (name f)))
+        (let [len (IO.Raw.ftell fd)]
+          (cond
+            (< len 0)
+              (Result.Error
+                (fmt
+                  "The length of the file “%s” could not be determined"
+                  (name f)))
+            (/= 0 (IO.Raw.fseek fd 0 IO.SEEK-SET))
+              (Result.Error
+                (fmt "The file “%s” could not be rewound" (name f)))
+            (read f len))))))
 
   (doc rewind "rewinds a file.")
   (defn rewind [f] (IO.Raw.rewind @(file f))))
