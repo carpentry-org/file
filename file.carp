@@ -70,6 +70,16 @@ You can `read` from the file—or `read-all`, if you don’t care about length�
 All of these will check whether the files are actually readable and/or writable
 before performing any IO actions and return a `Result.Error` if they can’t.
 
+A successful `write` only means the data reached the standard library’s buffer,
+though, so the write can still fail when that buffer is handed to the operating
+system. `close` throws that final status away; `close-checked` returns it, and
+`flush` forces the buffer out early so a caller can check before closing.
+
+```
+(flush &f)
+(close-checked f)
+```
+
 Reading is all-or-nothing: asking `read` for more values than the file holds is
 a `Result.Error`, never a short result. `read-all` seeks to find the length, so
 unseekable inputs such as pipes and terminals are an error as well.
@@ -249,11 +259,43 @@ opened due to permission errors or if the user tried to read from a nonexistant
 file.")
   (defn open [name] (open-with name default-mode))
 
-  (doc close "closes a file and takes ownership.")
-  (defn close [f] (ignore (IO.Raw.fclose @(file &f))))
+  (doc flush "flushes a file’s buffered writes out to the operating system.
 
-  (doc remove "removes a file from the file system.")
-  (defn remove [f] (ignore (IO.Raw.unlink (name f))))
+Returns a result containing either nothing, or an error if the buffered data
+couldn’t be written—because the disk is full, say.
+
+Since [`write`](#write) returns as soon as the data is buffered, this is the
+earliest point at which a caller can tell that a write really landed.")
+  (defn flush [f]
+    (if (= 0 (IO.Raw.fflush @(file f)))
+      (Result.Success ())
+      (Result.Error (fmt "The file “%s” could not be flushed" (name f)))))
+
+  (doc close-checked "closes a file and takes ownership, reporting failure.
+
+Returns a result containing either nothing, or an error if the buffered data
+couldn’t be flushed while closing. The file is closed either way.
+
+[`close`](#close) does the same but discards that result.")
+  (defn close-checked [f]
+    (if (= 0 (IO.Raw.fclose @(file &f)))
+      (Result.Success ())
+      (Result.Error (fmt "The file “%s” could not be closed" (name &f)))))
+
+  (doc close "closes a file and takes ownership.
+
+Discards the status of the closing flush; use
+[`close-checked`](#close-checked) to receive it.")
+  (defn close [f] (ignore (close-checked f)))
+
+  (doc remove "removes a file from the file system.
+
+Returns a result containing either nothing, or an error if the file couldn’t
+be removed—because it is already gone or its directory isn’t writable, say.")
+  (defn remove [f]
+    (if (= 0 (IO.Raw.unlink (name f)))
+      (Result.Success ())
+      (Result.Error (fmt "The file “%s” could not be removed" (name f)))))
 
   (doc write
     "Writes a value to a file. "

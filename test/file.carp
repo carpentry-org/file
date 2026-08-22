@@ -79,6 +79,38 @@
     (File.close f)
     res))
 
+; /dev/full takes a buffered write and then fails to flush; Linux only
+(defn- have-dev-full? []
+  (match (File.open-with "/dev/full" "w")
+    (Result.Success f) (do (File.close f) true)
+    (Result.Error _) false))
+
+(defn- flush-dev-full []
+  (let-do [f (unsafe-from-success (File.open-with "/dev/full" "w"))
+           wrote (File.write &f "hello")
+           flushed (File.flush &f)]
+    (File.close f)
+    [(error? &wrote) (error? &flushed)]))
+
+(defn- close-dev-full []
+  (let-do [f (unsafe-from-success (File.open-with "/dev/full" "w"))
+           wrote (File.write &f "hello")]
+    [(error? &wrote) (error? &(File.close-checked f))]))
+
+(defn- remove-again []
+  (let-do [f (unsafe-from-success (File.open "remove-fixture"))
+           -first (File.remove &f)
+           res (File.remove &f)]
+    (File.close f)
+    res))
+
+(defn- remove-twice []
+  (let-do [f (unsafe-from-success (File.open "remove-fixture"))
+           gone (File.remove &f)
+           again (File.remove &f)]
+    (File.close f)
+    [(error? &gone) (error? &again)]))
+
 (defn main []
   (with-test test
     (assert-equal test
@@ -132,11 +164,11 @@
       "binary-mode? works II")
     (assert-true test
       (let [f (File.open-with "doesntexist" "r")] (error? &f))
-      "opening non-existant file returns Result.Error")
+      "opening non-existent file returns Result.Error")
     (assert-equal test
       &(Result.Error @"Can’t open 'doesntexist'")
       &(File.walk "doesntexist" &(fn [s] ()))
-      "opening non-existant directory returns Result.Error")
+      "opening non-existent directory returns Result.Error")
     (assert-equal test
       2
       (do
@@ -257,6 +289,30 @@
         (do (IO.println "\t(skipped, named pipes are not supported)") true))
       "read-all reports an error for an unseekable stream")
     (do (ignore (System.system "rm -f read-fixture read-fifo")) @test)
+    (assert-equal test
+      &[false true]
+      &(remove-twice)
+      "remove reports an error for a file that is already gone")
+    (assert-equal test
+      &(Result.Error @"The file “remove-fixture” could not be removed")
+      &(remove-again)
+      "a failed remove names the file")
+    (assert-equal test
+      &[false true]
+      &(if (have-dev-full?)
+        (flush-dev-full)
+        (do
+          (IO.println "\t(skipped, no unwritable device available)")
+          [false true]))
+      "write succeeds into the buffer but flush reports the failed write")
+    (assert-equal test
+      &[false true]
+      &(if (have-dev-full?)
+        (close-dev-full)
+        (do
+          (IO.println "\t(skipped, no unwritable device available)")
+          [false true]))
+      "write succeeds into the buffer but close-checked reports the failure")
     (let-do [f (unsafe-from-success (File.open "example"))]
-      (File.remove &f)
+      (ignore (File.remove &f))
       @test)))
