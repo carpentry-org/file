@@ -97,6 +97,30 @@
            wrote (File.write &f "hello")]
     [(error? &wrote) (error? &(File.close-checked f))]))
 
+(defn- flush-then-close-dev-full []
+  (let-do [f (unsafe-from-success (File.open-with "/dev/full" "w"))
+           -wrote (File.write &f "hello")
+           flushed (File.flush &f)]
+    [(error? &flushed) (error? &(File.close-checked f))]))
+
+(defn- flush-twice-dev-full []
+  (let-do [f (unsafe-from-success (File.open-with "/dev/full" "w"))
+           -wrote (File.write &f "hello")
+           first (File.flush &f)
+           second (File.flush &f)]
+    (File.close f)
+    [(error? &first) (error? &second)]))
+
+(defn- flush-and-close-writable []
+  (let-do [f (unsafe-from-success (File.open-with "flush-fixture" "w"))
+           wrote (File.write &f "hello")
+           flushed (File.flush &f)
+           again (File.flush &f)]
+    [(error? &wrote)
+     (error? &flushed)
+     (error? &again)
+     (error? &(File.close-checked f))]))
+
 (defn- remove-again []
   (let-do [f (unsafe-from-success (File.open "remove-fixture"))
            -first (File.remove &f)
@@ -313,6 +337,27 @@
           (IO.println "\t(skipped, no unwritable device available)")
           [false true]))
       "write succeeds into the buffer but close-checked reports the failure")
+    (assert-equal test
+      &[true true]
+      &(if (have-dev-full?)
+        (flush-then-close-dev-full)
+        (do
+          (IO.println "\t(skipped, no unwritable device available)")
+          [true true]))
+      "close-checked still reports the failure a preceding flush drained")
+    (assert-equal test
+      &[true true]
+      &(if (have-dev-full?)
+        (flush-twice-dev-full)
+        (do
+          (IO.println "\t(skipped, no unwritable device available)")
+          [true true]))
+      "a second flush still reports the failure the first one drained")
+    (assert-equal test
+      &[false false false false]
+      &(flush-and-close-writable)
+      "flush and close-checked succeed on a file that takes the write")
+    (do (ignore (System.system "rm -f flush-fixture")) @test)
     (let-do [f (unsafe-from-success (File.open "example"))]
       (ignore (File.remove &f))
       @test)))

@@ -265,26 +265,34 @@ Returns a result containing either nothing, or an error if the buffered data
 couldn’t be written—because the disk is full, say.
 
 Since [`write`](#write) returns as soon as the data is buffered, this is the
-earliest point at which a caller can tell that a write really landed.")
+earliest point at which a caller can tell that a write really landed.
+
+The error is sticky: once a write or a flush on the file has failed, every
+later flush reports an error too, even though nothing is left to write out.")
   (defn flush [f]
-    (if (= 0 (IO.Raw.fflush @(file f)))
-      (Result.Success ())
-      (Result.Error (fmt "The file “%s” could not be flushed" (name f)))))
+    (let [fd @(file f)]
+      (if (and (= 0 (IO.Raw.fflush fd)) (not (IO.Raw.ferror fd)))
+        (Result.Success ())
+        (Result.Error (fmt "The file “%s” could not be flushed" (name f))))))
 
   (doc close-checked "closes a file and takes ownership, reporting failure.
 
 Returns a result containing either nothing, or an error if the buffered data
-couldn’t be flushed while closing. The file is closed either way.
+couldn’t be flushed while closing, or if a write or a flush on the file had
+already failed earlier. The file is closed either way.
 
 [`close`](#close) does the same but discards that result.")
   (defn close-checked [f]
-    (if (= 0 (IO.Raw.fclose @(file &f)))
-      (Result.Success ())
-      (Result.Error (fmt "The file “%s” could not be closed" (name &f)))))
+    (let [fd @(file &f)
+          failed? (IO.Raw.ferror fd)
+          closed (IO.Raw.fclose fd)]
+      (if (and (= 0 closed) (not failed?))
+        (Result.Success ())
+        (Result.Error (fmt "The file “%s” could not be closed" (name &f))))))
 
   (doc close "closes a file and takes ownership.
 
-Discards the status of the closing flush; use
+Discards the status of the close; use
 [`close-checked`](#close-checked) to receive it.")
   (defn close [f] (ignore (close-checked f)))
 
