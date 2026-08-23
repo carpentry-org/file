@@ -167,7 +167,7 @@ or dotfiles.")
   (doc walk-with "walks a directory with a custom [walk mode](#walk-mode).
 
 Returns a result containing either nothing, or an error if a directory couldn’t
-be opened due to permission errors or if the user tried to open a nonexistant
+be opened due to permission errors or if the user tried to open a non-existent
 directory.
 
 The walk aborts at the first subdirectory it can’t descend into and returns that
@@ -178,7 +178,7 @@ error, so a success means the entire tree was visited.")
 [`default-walk`](#default-walk)).
 
 Returns a result containing either nothing, or an error if a directory couldn’t
-be opened due to permission errors or if the user tried to open a nonexistant
+be opened due to permission errors or if the user tried to open a non-existent
 directory.
 
 The walk aborts at the first subdirectory it can’t descend into and returns that
@@ -189,7 +189,7 @@ error, so a success means the entire tree was visited.")
 
 Returns a result containing either the results of the walker function as an
 array or an error if a directory couldn’t be opened due to permission errors
-or if the user tried to open a nonexistant directory.")
+or if the user tried to open a non-existent directory.")
   (defn map-with [s callback options]
     (let [res []
           res-ref &res]
@@ -202,14 +202,14 @@ or if the user tried to open a nonexistant directory.")
 
 Returns a result containing either the results of the walker function as an
 array or an error if a directory couldn’t be opened due to permission errors
-or if the user tried to open a nonexistant directory.")
+or if the user tried to open a non-existent directory.")
   (defn map [s callback] (map-with s callback &default-walk))
 
   (doc contents-with "walks a directory with a custom [walk mode](#walk-mode).
 
 Returns a result containing either the directory contents or an error if a
 directory couldn’t be opened due to permission errors or if the user tried to
-open a nonexistant directory.")
+open a non-existent directory.")
   (defn contents-with [s options] (map-with s &copy options))
 
   (doc contents "walks a directory with the default walk mode (see also
@@ -217,7 +217,7 @@ open a nonexistant directory.")
 
 Returns a result containing either the contents of that directory or an error
 if a directory couldn’t be opened due to permission errors or if the user
-tried to open a nonexistant directory.")
+tried to open a non-existent directory.")
   (defn contents [s] (contents-with s &default-walk))
 
   (doc default-mode "is the default file mode, used by [`open`](#open).
@@ -243,7 +243,7 @@ mode.")
   (doc open-with "opens a file with custom file mode.
 
 Returns a result containing either a file, or an error if the file couldn’t be
-opened due to permission errors or if the user tried to read from a nonexistant
+opened due to permission errors or if the user tried to read from a non-existent
 file.")
   (defn open-with [name mode]
     (let [f (IO.Raw.fopen name mode)]
@@ -255,7 +255,7 @@ file.")
 [`default-mode`](#default-mode)).
 
 Returns a result containing either a file, or an error if the file couldn’t be
-opened due to permission errors or if the user tried to read from a nonexistant
+opened due to permission errors or if the user tried to read from a non-existent
 file.")
   (defn open [name] (open-with name default-mode))
 
