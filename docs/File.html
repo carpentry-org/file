@@ -88,6 +88,13 @@ file again. In Carp, we do this using <code>close</code>.</p>
 </code></pre>
 <p>All of these will check whether the files are actually readable and/or writable
 before performing any IO actions and return a <code>Result.Error</code> if they can’t.</p>
+<p>A successful <code>write</code> only means the data reached the standard library’s buffer,
+though, so the write can still fail when that buffer is handed to the operating
+system. <code>close</code> throws that final status away; <code>close-checked</code> returns it, and
+<code>flush</code> forces the buffer out early so a caller can check before closing.</p>
+<pre><code>(flush &amp;f)
+(close-checked f)
+</code></pre>
 <p>Reading is all-or-nothing: asking <code>read</code> for more values than the file holds is
 a <code>Result.Error</code>, never a short result. <code>read-all</code> seeks to find the length, so
 unseekable inputs such as pipes and terminals are an error as well.</p>
@@ -219,6 +226,31 @@ mode.</p>
                     </pre>
                     <p class="doc">
                         <p>closes a file and takes ownership.</p>
+<p>Discards the status of the closing flush; use
+<a href="#close-checked"><code>close-checked</code></a> to receive it.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#close-checked">
+                        <h3 id="close-checked">
+                            close-checked
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [File] (Result () String))
+                    </p>
+                    <pre class="args">
+                        (close-checked f)
+                    </pre>
+                    <p class="doc">
+                        <p>closes a file and takes ownership, reporting failure.</p>
+<p>Returns a result containing either nothing, or an error if the buffered data
+couldn’t be flushed while closing. The file is closed either way.</p>
+<p><a href="#close"><code>close</code></a> does the same but discards that result.</p>
 
                     </p>
                 </div>
@@ -349,6 +381,30 @@ or dotfiles.</p>
                     </span>
                     <p class="doc">
                         <p>deletes a <code>File</code>. Should usually not be called manually.</p>
+
+                    </p>
+                </div>
+                <div class="binder">
+                    <a class="anchor" href="#flush">
+                        <h3 id="flush">
+                            flush
+                        </h3>
+                    </a>
+                    <div class="description">
+                        defn
+                    </div>
+                    <p class="sig">
+                        (Fn [(Ref File a)] (Result () String))
+                    </p>
+                    <pre class="args">
+                        (flush f)
+                    </pre>
+                    <p class="doc">
+                        <p>flushes a file’s buffered writes out to the operating system.</p>
+<p>Returns a result containing either nothing, or an error if the buffered data
+couldn’t be written—because the disk is full, say.</p>
+<p>Since <a href="#write"><code>write</code></a> returns as soon as the data is buffered, this is the
+earliest point at which a caller can tell that a write really landed.</p>
 
                     </p>
                 </div>
@@ -588,13 +644,15 @@ terminals return an error rather than their contents.</p>
                         defn
                     </div>
                     <p class="sig">
-                        (Fn [(Ref File a)] ())
+                        (Fn [(Ref File a)] (Result () String))
                     </p>
                     <pre class="args">
                         (remove f)
                     </pre>
                     <p class="doc">
                         <p>removes a file from the file system.</p>
+<p>Returns a result containing either nothing, or an error if the file couldn’t
+be removed—because it is already gone or its directory isn’t writable, say.</p>
 
                     </p>
                 </div>
