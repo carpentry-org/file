@@ -268,27 +268,37 @@ Since [`write`](#write) returns as soon as the data is buffered, this is the
 earliest point at which a caller can tell that a write really landed.
 
 The error is sticky: once a write or a flush on the file has failed, every
-later flush reports an error too, even though nothing is left to write out.")
+later flush reports an error too, even though nothing is left to write out.
+Those later errors name that earlier failure rather than this flush.")
   (defn flush [f]
     (let [fd @(file f)]
-      (if (and (= 0 (IO.Raw.fflush fd)) (not (IO.Raw.ferror fd)))
-        (Result.Success ())
-        (Result.Error (fmt "The file “%s” could not be flushed" (name f))))))
+      (cond
+        (/= 0 (IO.Raw.fflush fd))
+          (Result.Error (fmt "The file “%s” could not be flushed" (name f)))
+        (IO.Raw.ferror fd)
+          (Result.Error
+            (fmt "The file “%s” had an earlier write failure" (name f)))
+        (Result.Success ()))))
 
   (doc close-checked "closes a file and takes ownership, reporting failure.
 
 Returns a result containing either nothing, or an error if the buffered data
 couldn’t be flushed while closing, or if a write or a flush on the file had
-already failed earlier. The file is closed either way.
+already failed earlier—in which case the error names that earlier failure
+rather than the close. The file is closed either way.
 
 [`close`](#close) does the same but discards that result.")
   (defn close-checked [f]
     (let [fd @(file &f)
           failed? (IO.Raw.ferror fd)
           closed (IO.Raw.fclose fd)]
-      (if (and (= 0 closed) (not failed?))
-        (Result.Success ())
-        (Result.Error (fmt "The file “%s” could not be closed" (name &f))))))
+      (cond
+        (/= 0 closed)
+          (Result.Error (fmt "The file “%s” could not be closed" (name &f)))
+        failed?
+          (Result.Error
+            (fmt "The file “%s” had an earlier write failure" (name &f)))
+        (Result.Success ()))))
 
   (doc close "closes a file and takes ownership.
 
