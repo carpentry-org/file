@@ -249,9 +249,9 @@ mode.</p>
                     <p class="doc">
                         <p>closes a file and takes ownership, reporting failure.</p>
 <p>Returns a result containing either nothing, or an error if the buffered data
-couldn’t be flushed while closing, or if a write or a flush on the file had
-already failed earlier—in which case the error names that earlier failure
-rather than the close. The file is closed either way.</p>
+couldn’t be flushed while closing, or if a read, a write or a flush on the
+file had already failed earlier—in which case the error names that earlier
+failure rather than the close. The file is closed either way.</p>
 <p><a href="#close"><code>close</code></a> does the same but discards that result.</p>
 
                     </p>
@@ -407,9 +407,10 @@ or dotfiles.</p>
 couldn’t be written—because the disk is full, say.</p>
 <p>Since <a href="#write"><code>write</code></a> returns as soon as the data is buffered, this is the
 earliest point at which a caller can tell that a write really landed.</p>
-<p>The error is sticky: once a write or a flush on the file has failed, every
-later flush reports an error too, even though nothing is left to write out.
-Those later errors name that earlier failure rather than this flush.</p>
+<p>The error is sticky: once a read, a write or a flush on the file has failed,
+every later flush reports an error too, even though this flush itself had
+nothing left to do. Those later errors name that earlier failure rather than
+this flush.</p>
 
                     </p>
                 </div>

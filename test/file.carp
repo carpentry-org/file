@@ -137,7 +137,18 @@
 
 (defn- sticky-failure []
   (the (Result () String)
-       (Result.Error @"The file “/dev/full” had an earlier write failure")))
+       (Result.Error @"The file “/dev/full” had an earlier failure")))
+
+; fopen on a directory succeeds; the read underneath fails and sets ferror
+(defn- read-dir-then-flush []
+  (let-do [f (unsafe-from-success (File.open-with "." "r"))
+           -read (the (Result (Array Byte) String) (File.read &f 4))
+           flushed (File.flush &f)]
+    [flushed (File.close-checked f)]))
+
+(defn- dir-sticky-failure []
+  (the (Result () String)
+       (Result.Error @"The file “.” had an earlier failure")))
 
 (defn- flush-and-close-writable []
   (let-do [f (unsafe-from-success (File.open-with "flush-fixture" "w"))
@@ -397,6 +408,10 @@
           (IO.println "\t(skipped, no unwritable device available)")
           [(flush-failure) (close-failure)]))
       "a close with new data to lose names itself, not the earlier failure")
+    (assert-equal test
+      &[(dir-sticky-failure) (dir-sticky-failure)]
+      &(read-dir-then-flush)
+      "a failed read is reported without naming a write")
     (assert-equal test
       &[false false false false]
       &(flush-and-close-writable)
