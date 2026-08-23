@@ -226,7 +226,7 @@ mode.</p>
                     </pre>
                     <p class="doc">
                         <p>closes a file and takes ownership.</p>
-<p>Discards the status of the closing flush; use
+<p>Discards the status of the close; use
 <a href="#close-checked"><code>close-checked</code></a> to receive it.</p>
 
                     </p>
@@ -249,7 +249,9 @@ mode.</p>
                     <p class="doc">
                         <p>closes a file and takes ownership, reporting failure.</p>
 <p>Returns a result containing either nothing, or an error if the buffered data
-couldn’t be flushed while closing. The file is closed either way.</p>
+couldn’t be flushed while closing, or if a read, a write or a flush on the
+file had already failed earlier—in which case the error names that earlier
+failure rather than the close. The file is closed either way.</p>
 <p><a href="#close"><code>close</code></a> does the same but discards that result.</p>
 
                     </p>
@@ -274,7 +276,7 @@ couldn’t be flushed while closing. The file is closed either way.</p>
 <a href="#default-walk"><code>default-walk</code></a>).</p>
 <p>Returns a result containing either the contents of that directory or an error
 if a directory couldn’t be opened due to permission errors or if the user
-tried to open a nonexistant directory.</p>
+tried to open a non-existent directory.</p>
 
                     </p>
                 </div>
@@ -297,7 +299,7 @@ tried to open a nonexistant directory.</p>
                         <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
 <p>Returns a result containing either the directory contents or an error if a
 directory couldn’t be opened due to permission errors or if the user tried to
-open a nonexistant directory.</p>
+open a non-existent directory.</p>
 
                     </p>
                 </div>
@@ -405,6 +407,10 @@ or dotfiles.</p>
 couldn’t be written—because the disk is full, say.</p>
 <p>Since <a href="#write"><code>write</code></a> returns as soon as the data is buffered, this is the
 earliest point at which a caller can tell that a write really landed.</p>
+<p>The error is sticky: once a read, a write or a flush on the file has failed,
+every later flush reports an error too, even though this flush itself had
+nothing left to do. Those later errors name that earlier failure rather than
+this flush.</p>
 
                     </p>
                 </div>
@@ -428,7 +434,7 @@ earliest point at which a caller can tell that a write really landed.</p>
 <a href="#default-walk"><code>default-walk</code></a>).</p>
 <p>Returns a result containing either the results of the walker function as an
 array or an error if a directory couldn’t be opened due to permission errors
-or if the user tried to open a nonexistant directory.</p>
+or if the user tried to open a non-existent directory.</p>
 
                     </p>
                 </div>
@@ -451,7 +457,7 @@ or if the user tried to open a nonexistant directory.</p>
                         <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
 <p>Returns a result containing either the results of the walker function as an
 array or an error if a directory couldn’t be opened due to permission errors
-or if the user tried to open a nonexistant directory.</p>
+or if the user tried to open a non-existent directory.</p>
 
                     </p>
                 </div>
@@ -514,7 +520,7 @@ or if the user tried to open a nonexistant directory.</p>
                         <p>opens a file with the default file mode (see also
 <a href="#default-mode"><code>default-mode</code></a>).</p>
 <p>Returns a result containing either a file, or an error if the file couldn’t be
-opened due to permission errors or if the user tried to read from a nonexistant
+opened due to permission errors or if the user tried to read from a non-existent
 file.</p>
 
                     </p>
@@ -537,7 +543,7 @@ file.</p>
                     <p class="doc">
                         <p>opens a file with custom file mode.</p>
 <p>Returns a result containing either a file, or an error if the file couldn’t be
-opened due to permission errors or if the user tried to read from a nonexistant
+opened due to permission errors or if the user tried to read from a non-existent
 file.</p>
 
                     </p>
@@ -715,7 +721,7 @@ be removed—because it is already gone or its directory isn’t writable, say.<
                         <p>walks a directory with the default walk mode (see also
 <a href="#default-walk"><code>default-walk</code></a>).</p>
 <p>Returns a result containing either nothing, or an error if a directory couldn’t
-be opened due to permission errors or if the user tried to open a nonexistant
+be opened due to permission errors or if the user tried to open a non-existent
 directory.</p>
 <p>The walk aborts at the first subdirectory it can’t descend into and returns that
 error, so a success means the entire tree was visited.</p>
@@ -760,7 +766,7 @@ error, so a success means the entire tree was visited.</p>
                     <p class="doc">
                         <p>walks a directory with a custom <a href="#walk-mode">walk mode</a>.</p>
 <p>Returns a result containing either nothing, or an error if a directory couldn’t
-be opened due to permission errors or if the user tried to open a nonexistant
+be opened due to permission errors or if the user tried to open a non-existent
 directory.</p>
 <p>The walk aborts at the first subdirectory it can’t descend into and returns that
 error, so a success means the entire tree was visited.</p>

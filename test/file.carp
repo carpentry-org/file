@@ -94,8 +94,71 @@
 
 (defn- close-dev-full []
   (let-do [f (unsafe-from-success (File.open-with "/dev/full" "w"))
-           wrote (File.write &f "hello")]
-    [(error? &wrote) (error? &(File.close-checked f))]))
+           -wrote (File.write &f "hello")]
+    (File.close-checked f)))
+
+(defn- flush-then-close-dev-full []
+  (let-do [f (unsafe-from-success (File.open-with "/dev/full" "w"))
+           -wrote (File.write &f "hello")
+           flushed (File.flush &f)]
+    [flushed (File.close-checked f)]))
+
+(defn- flush-twice-dev-full []
+  (let-do [f (unsafe-from-success (File.open-with "/dev/full" "w"))
+           -wrote (File.write &f "hello")
+           first (File.flush &f)
+           second (File.flush &f)]
+    (File.close f)
+    [first second]))
+
+(defn- flush-rewrite-flush-dev-full []
+  (let-do [f (unsafe-from-success (File.open-with "/dev/full" "w"))
+           -wrote (File.write &f "hello")
+           first (File.flush &f)
+           -rewrote (File.write &f "world")
+           second (File.flush &f)]
+    (File.close f)
+    [first second]))
+
+(defn- flush-rewrite-close-dev-full []
+  (let-do [f (unsafe-from-success (File.open-with "/dev/full" "w"))
+           -wrote (File.write &f "hello")
+           flushed (File.flush &f)
+           -rewrote (File.write &f "world")]
+    [flushed (File.close-checked f)]))
+
+(defn- flush-failure []
+  (the (Result () String)
+       (Result.Error @"The file “/dev/full” could not be flushed")))
+
+(defn- close-failure []
+  (the (Result () String)
+       (Result.Error @"The file “/dev/full” could not be closed")))
+
+(defn- sticky-failure []
+  (the (Result () String)
+       (Result.Error @"The file “/dev/full” had an earlier failure")))
+
+; fopen on a directory succeeds; the read underneath fails and sets ferror
+(defn- read-dir-then-flush []
+  (let-do [f (unsafe-from-success (File.open-with "." "r"))
+           -read (the (Result (Array Byte) String) (File.read &f 4))
+           flushed (File.flush &f)]
+    [flushed (File.close-checked f)]))
+
+(defn- dir-sticky-failure []
+  (the (Result () String)
+       (Result.Error @"The file “.” had an earlier failure")))
+
+(defn- flush-and-close-writable []
+  (let-do [f (unsafe-from-success (File.open-with "flush-fixture" "w"))
+           wrote (File.write &f "hello")
+           flushed (File.flush &f)
+           again (File.flush &f)]
+    [(error? &wrote)
+     (error? &flushed)
+     (error? &again)
+     (error? &(File.close-checked f))]))
 
 (defn- remove-again []
   (let-do [f (unsafe-from-success (File.open "remove-fixture"))
@@ -306,13 +369,54 @@
           [false true]))
       "write succeeds into the buffer but flush reports the failed write")
     (assert-equal test
-      &[false true]
+      &(close-failure)
       &(if (have-dev-full?)
         (close-dev-full)
         (do
           (IO.println "\t(skipped, no unwritable device available)")
-          [false true]))
-      "write succeeds into the buffer but close-checked reports the failure")
+          (close-failure)))
+      "close-checked names the close when the close is what fails")
+    (assert-equal test
+      &[(flush-failure) (sticky-failure)]
+      &(if (have-dev-full?)
+        (flush-then-close-dev-full)
+        (do
+          (IO.println "\t(skipped, no unwritable device available)")
+          [(flush-failure) (sticky-failure)]))
+      "close-checked names the earlier failure a preceding flush drained")
+    (assert-equal test
+      &[(flush-failure) (sticky-failure)]
+      &(if (have-dev-full?)
+        (flush-twice-dev-full)
+        (do
+          (IO.println "\t(skipped, no unwritable device available)")
+          [(flush-failure) (sticky-failure)]))
+      "a second flush names the earlier failure the first one drained")
+    (assert-equal test
+      &[(flush-failure) (flush-failure)]
+      &(if (have-dev-full?)
+        (flush-rewrite-flush-dev-full)
+        (do
+          (IO.println "\t(skipped, no unwritable device available)")
+          [(flush-failure) (flush-failure)]))
+      "a flush with new data to lose names itself, not the earlier failure")
+    (assert-equal test
+      &[(flush-failure) (close-failure)]
+      &(if (have-dev-full?)
+        (flush-rewrite-close-dev-full)
+        (do
+          (IO.println "\t(skipped, no unwritable device available)")
+          [(flush-failure) (close-failure)]))
+      "a close with new data to lose names itself, not the earlier failure")
+    (assert-equal test
+      &[(dir-sticky-failure) (dir-sticky-failure)]
+      &(read-dir-then-flush)
+      "a failed read is reported without naming a write")
+    (assert-equal test
+      &[false false false false]
+      &(flush-and-close-writable)
+      "flush and close-checked succeed on a file that takes the write")
+    (do (ignore (System.system "rm -f flush-fixture")) @test)
     (let-do [f (unsafe-from-success (File.open "example"))]
       (ignore (File.remove &f))
       @test)))

@@ -57,6 +57,10 @@ system. `close` throws that final status away; `close-checked` returns it, and
 (close-checked f)
 ```
 
+Once a read, a write or a flush on the file has failed, the error sticks: every
+later `flush` and the eventual `close-checked` report it too, naming that
+earlier failure rather than the call that surfaced it.
+
 Reading is all-or-nothing: asking `read` for more values than the file holds is
 a `Result.Error`, never a short result. `read-all` seeks to find the length, so
 unseekable inputs such as pipes and terminals are an error as well.
