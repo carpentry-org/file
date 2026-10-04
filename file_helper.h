@@ -22,3 +22,33 @@ int File_stat(char** f) {
 
   return st.st_mode;
 }
+
+int File_follow_stat(char** f) {
+  struct stat st;
+
+  if (stat(*f, &st) == -1) {
+    return -1;
+  }
+
+  return st.st_mode;
+}
+
+uint64_t File_dir_dev(DIR* d) {
+  struct stat st;
+
+  if (fstat(dirfd(d), &st) == -1) {
+    return 0;
+  }
+
+  return (uint64_t)st.st_dev;
+}
+
+uint64_t File_dir_ino(DIR* d) {
+  struct stat st;
+
+  if (fstat(dirfd(d), &st) == -1) {
+    return 0;
+  }
+
+  return (uint64_t)st.st_ino;
+}

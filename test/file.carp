@@ -23,6 +23,30 @@
   (let [d (Dir.open (cstr "walk-fixture/locked"))]
     (if (null? d) true (do (Dir.close d) false))))
 
+(defn- clean-link-fixture [] (ignore (System.system "rm -rf link-fixture")))
+
+(defn- make-link-fixture []
+  (do
+    (clean-link-fixture)
+    (ignore
+      (System.system
+        "mkdir -p link-fixture/tree/sub link-fixture/loop/sub link-fixture/broken"))
+    (ignore
+      (System.system
+        "touch link-fixture/tree/a.txt link-fixture/tree/sub/b.txt link-fixture/loop/sub/b.txt"))
+    (ignore
+      (System.system
+        "cd link-fixture && ln -s a.txt tree/linkfile && ln -s sub tree/linkdir && ln -s nonexistent tree/dangling && ln -s nonexistent broken/dangling && ln -s .. loop/sub/loop && ln -s loop root"))))
+
+(defn- sorted [res] (Result.map res &(fn [a] (Array.sorted &a))))
+
+(defn- loop-error [link]
+  (the (Result Int String)
+       (Result.Error
+         (fmt
+           "Can’t follow '%s', it loops back to an enclosing directory"
+           link))))
+
 (defn- make-read-fixture []
   (let-do [f (unsafe-from-success (File.open-with "read-fixture" "w+"))]
     (ignore (File.write &f "hello"))
@@ -275,6 +299,92 @@
             true)))
       "walk reports an error for an unreadable subdirectory")
     (do (clean-walk-fixture) @test)
+    (do (make-link-fixture) @test)
+    (assert-equal test
+      &(Result.Success
+        (Array.sorted
+          &[@"link-fixture/tree/a.txt"
+            @"link-fixture/tree/dangling"
+            @"link-fixture/tree/linkdir/b.txt"
+            @"link-fixture/tree/linkfile"
+            @"link-fixture/tree/sub/b.txt"]))
+      &(sorted
+        (File.contents-with "link-fixture/tree"
+                            &(File.walk-mode true true false false)))
+      "following links walks a linked directory under its own path and its target’s")
+    (assert-equal test
+      &(Result.Success
+        (Array.sorted
+          &[@"link-fixture/tree/a.txt"
+            @"link-fixture/tree/dangling"
+            @"link-fixture/tree/linkdir"
+            @"link-fixture/tree/linkdir/b.txt"
+            @"link-fixture/tree/linkfile"
+            @"link-fixture/tree/sub"
+            @"link-fixture/tree/sub/b.txt"]))
+      &(sorted
+        (File.contents-with "link-fixture/tree"
+                            &(File.walk-mode true true false true)))
+      "following links with match-dirs? reports a linked directory")
+    (assert-equal test
+      &(Result.Success
+        (Array.sorted
+          &[@"link-fixture/tree/a.txt"
+            @"link-fixture/tree/dangling"
+            @"link-fixture/tree/linkfile"]))
+      &(sorted
+        (File.contents-with "link-fixture/tree"
+                            &(File.walk-mode false true false false)))
+      "a non-recursive walk neither descends into nor lists a linked directory")
+    (assert-equal test
+      &(Result.Success [@"link-fixture/broken/dangling"])
+      &(File.contents-with "link-fixture/broken"
+                           &(File.walk-mode true true false false))
+      "following links lists a dangling link instead of failing the walk")
+    (assert-equal test
+      &(loop-error "link-fixture/loop/sub/loop")
+      &(File.walk-with "link-fixture/loop"
+                       &(fn [_] ())
+                       &(File.walk-mode true true false false))
+      "following a link back to an enclosing directory is an error naming the link")
+    (assert-equal test
+      &(loop-error "link-fixture/root/sub/loop")
+      &(File.walk-with "link-fixture/root"
+                       &(fn [_] ())
+                       &(File.walk-mode true true false false))
+      "a loop back to a root that is itself a link is caught at the loop")
+    (assert-equal test
+      &(Result.Success
+        (Array.sorted
+          &[@"link-fixture/loop/sub/b.txt" @"link-fixture/loop/sub/loop"]))
+      &(sorted
+        (File.contents-with "link-fixture/loop/sub"
+                            &(File.walk-mode false true false true)))
+      "a non-recursive walk lists a loop link without failing")
+    (assert-equal test
+      &(Result.Success
+        (Array.sorted
+          &[@"link-fixture/broken"
+            @"link-fixture/loop"
+            @"link-fixture/loop/sub"
+            @"link-fixture/loop/sub/b.txt"
+            @"link-fixture/tree"
+            @"link-fixture/tree/a.txt"
+            @"link-fixture/tree/sub"
+            @"link-fixture/tree/sub/b.txt"]))
+      &(sorted
+        (File.contents-with "link-fixture"
+                            &(File.walk-mode true false false true)))
+      "not following links skips every link even with match-dirs?")
+    (assert-equal test
+      &(Result.Success
+        (Array.sorted
+          &[@"link-fixture/loop/sub/b.txt"
+            @"link-fixture/tree/a.txt"
+            @"link-fixture/tree/sub/b.txt"]))
+      &(sorted (File.contents "link-fixture"))
+      "the default walk skips every link")
+    (do (clean-link-fixture) @test)
     (do (make-read-fixture) @test)
     (assert-equal test
       &(Result.Success @"hello")
