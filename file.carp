@@ -94,6 +94,16 @@ You can also ask about the modes of the file, using the functions `readable?`,
   (private stat)
   (hidden stat)
   (register stat (Fn [(Ref String)] Int) "File_stat")
+  (private follow-stat)
+  (hidden follow-stat)
+  (register follow-stat (Fn [(Ref String)] Int) "File_follow_stat")
+
+  (private dir-dev)
+  (hidden dir-dev)
+  (register dir-dev (Fn [(Ptr DIR)] Uint64) "File_dir_dev")
+  (private dir-ino)
+  (hidden dir-ino)
+  (register dir-ino (Fn [(Ptr DIR)] Uint64) "File_dir_ino")
 
   (private is-link)
   (hidden is-link)
@@ -114,41 +124,59 @@ You can also ask about the modes of the file, using the functions `readable?`,
   (hidden update-file)
   (hidden update-name)
 
-  (defn walk-recur [dname op spec]
+  (defn- enter [ancestors dir]
+    (let [id (Pair.init (dir-dev dir) (dir-ino dir))]
+      (if (Array.contains? ancestors &id)
+        (Maybe.Nothing)
+        (Maybe.Just (Array.push-back @ancestors id)))))
+
+  (defn walk-recur [dname op spec ancestors]
     (let [dir (Dir.open (cstr dname))
+          follow? @(WalkOptions.follow-links? spec)
           res (Result.Success 0)]
       (if (null? dir)
         (Result.Error (fmt "Can’t open '%s'" dname))
         (do
-          (until-expr [dent (Dir.read dir)]
-                      (null? dent)
-                      (let [name &(from-cstr (Dir.d-name dent))]
-                        (cond
-                          (and (not @(WalkOptions.dotfiles? spec))
-                               (starts-with? name "."))
-                            ()
-                          (or (= name ".") (= name "..")) ()
-                          (let-do [f (fmt "%s/%s" dname name)
-                                   lres (stat &f)]
+          (match (if follow? (enter ancestors dir) (Maybe.Just []))
+            (Maybe.Nothing)
+              (set! res
+                    (Result.Error
+                      (fmt
+                        "Can’t follow '%s', it loops back to an enclosing directory"
+                        dname)))
+            (Maybe.Just path)
+              (until-expr [dent (Dir.read dir)]
+                          (null? dent)
+                          (let [name &(from-cstr (Dir.d-name dent))]
                             (cond
-                              (= -1 lres)
-                                (do
-                                  (set! res
-                                        (Result.Error (fmt "Can’t stat '%s'"
-                                                           &f)))
-                                  (break))
-                              (and (is-link lres)
-                                   (not @(WalkOptions.follow-links? spec)))
+                              (and (not @(WalkOptions.dotfiles? spec))
+                                   (starts-with? name "."))
                                 ()
-                              (is-dir lres)
-                                (do
-                                  (when @(WalkOptions.recursive? spec)
-                                    (let [rec (walk-recur &f op spec)]
-                                      (when-do (Result.error? &rec)
-                                        (set! res rec)
-                                        (break))))
-                                  (when @(WalkOptions.match-dirs? spec) (~op &f)))
-                              (~op &f))))))
+                              (or (= name ".") (= name "..")) ()
+                              (let-do [f (fmt "%s/%s" dname name)
+                                       lres (stat &f)
+                                       link? (is-link lres)
+                                       mode (if (and link? follow?)
+                                         (follow-stat &f)
+                                         lres)]
+                                (cond
+                                  (= -1 lres)
+                                    (do
+                                      (set! res
+                                            (Result.Error (fmt "Can’t stat '%s'"
+                                                               &f)))
+                                      (break))
+                                  (and link? (not follow?)) ()
+                                  (and (/= -1 mode) (is-dir mode))
+                                    (do
+                                      (when @(WalkOptions.recursive? spec)
+                                        (let [rec (walk-recur &f op spec &path)]
+                                          (when-do (Result.error? &rec)
+                                            (set! res rec)
+                                            (break))))
+                                      (when @(WalkOptions.match-dirs? spec)
+                                        (~op &f)))
+                                  (~op &f)))))))
           (Dir.close dir)
           res))))
   (hidden walk-recur)
@@ -157,10 +185,14 @@ You can also ask about the modes of the file, using the functions `readable?`,
   (doc default-walk "is the default options used by [`walk`](#walk).
 
 Initially set to recursive, not following links, and not matching directories
-or dotfiles.")
+or dotfiles. Links that aren’t followed are skipped altogether.")
   (def default-walk (WalkOptions.init true false false false))
 
-  (doc walk-mode "constructs a mode for [`walk-with`](#walk-with).")
+  (doc walk-mode "constructs a mode for [`walk-with`](#walk-with).
+
+With `follow-links?` set, a link to a directory is walked as that directory
+under the link’s own path, and any other link—even one whose target doesn’t
+exist—is passed to the callback as a file.")
   (defn walk-mode [recursive? follow-links? dotfiles? match-dirs?]
     (WalkOptions.init recursive? follow-links? dotfiles? match-dirs?))
 
@@ -171,8 +203,9 @@ be opened due to permission errors or if the user tried to open a non-existent
 directory.
 
 The walk aborts at the first subdirectory it can’t descend into and returns that
-error, so a success means the entire tree was visited.")
-  (defn walk-with [s callback options] (walk-recur s callback options))
+error, so a success means the entire tree was visited. When following links, a
+link back to a directory that encloses it is one of those.")
+  (defn walk-with [s callback options] (walk-recur s callback options &[]))
 
   (doc walk "walks a directory with the default walk mode (see also
 [`default-walk`](#default-walk)).
