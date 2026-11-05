@@ -1,13 +1,20 @@
 (defmodule File
   (defmodule ByteReader
+    (private fread)
+    (hidden fread)
+    (register fread (Fn [(Ptr Byte) Int Int (Ptr FILE)] Int) "fread")
+
     (doc read-byte "Read a single byte from a file.")
     (defn read-byte [file] (Result.map (IO.fgetc file) &to-byte))
 
     (doc read-at-most
       "Reads up to `n` bytes from a file, stopping early at the end of it."
       ("Returns a result containing however many bytes were there, which " false)
-      ("may be fewer than `n` and may be none at all. Only a negative `n` " false)
-      "is an error."
+      ("may be fewer than `n` and may be none at all. A negative `n` or a " false)
+      "failed read is an error."
+      ""
+      ("The error is sticky: once a read, a write or a flush on the file has " false)
+      "failed, every later call reports an error too."
       ""
       ("Use this to read a file in chunks, where a short final chunk is " false)
       ("expected; use [`read-bytes`](#read-bytes) when anything less than " false)
@@ -22,17 +29,18 @@
         (< n 0)
         (Result.Error
           (fmt "Can’t read %d bytes from the file “%s”" n (name f)))
-        (let-do [bytes (Array.allocate n)
-                 i 0]
-          (while-do (< i n)
-            (match (read-byte @(file f))
-              (Result.Success b) (Array.aset-uninitialized! &bytes i b)
-              (Result.Error _) (break))
-            (++ i))
-          ; the full read is the common one, and it owns the buffer already
-          (if (= i n)
+        (IO.Raw.ferror @(file f))
+        (Result.Error (fmt "The file “%s” had an earlier failure" (name f)))
+        (let [fd @(file f)
+              bytes (Array.allocate n)
+              got (fread (Array.unsafe-raw &bytes) 1 n fd)]
+          (cond
+            (IO.Raw.ferror fd)
+            (Result.Error (fmt "The file “%s” could not be read" (name f)))
+            ; the full read is the common one, and it owns the buffer already
+            (= got n)
             (Result.Success bytes)
-            (Result.Success (Array.prefix &bytes i))))))
+            (Result.Success (Array.prefix &bytes got))))))
 
     (doc read-bytes
       "Read exactly `n` bytes from a file."
