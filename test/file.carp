@@ -91,6 +91,13 @@
     (File.close f)
     acc))
 
+(defn- read-dir-twice []
+  (let-do [f (unsafe-from-success (File.open-with "." "r"))
+           once (File.ByteReader.read-at-most &f 4)
+           again (File.ByteReader.read-at-most &f 4)]
+    (File.close f)
+    [once again]))
+
 ; the backgrounded writer blocks on open until the test opens the read end
 (defn- make-fifo []
   (= 0
@@ -456,6 +463,19 @@
         (ignore (System.system "rm -f write-fixture"))
         res)
       "read-at-most reports an unreadable file rather than reading nothing")
+    (assert-equal test
+      &[(the (Result (Array Byte) String)
+             (Result.Error @"The file “.” could not be read"))
+        (Result.Error @"The file “.” had an earlier failure")]
+      &(read-dir-twice)
+      "read-at-most reports a failed read, and every read after it")
+    (assert-equal test
+      &(Result.Error @"The file “.” could not be read")
+      &(let-do [f (unsafe-from-success (File.open-with "." "r"))
+                res (File.ByteReader.read-bytes &f 4)]
+        (File.close f)
+        res)
+      "read-bytes reports a failed read rather than a short file")
     (assert-true test
       (if (make-fifo)
         (fifo-read-all-error?)
